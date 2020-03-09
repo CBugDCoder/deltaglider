@@ -1,0 +1,3 @@
+#When enabled the player will control the glider via looking around.
+#When disabled the player will control the glider via the movement keys.
+glider_mouse_controls (Mouse Controls) bool true
