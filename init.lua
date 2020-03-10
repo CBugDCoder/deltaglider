@@ -180,7 +180,7 @@ minetest.register_craftitem("glider:rocket", {
 
 minetest.register_craft({
 	output = "glider:glider",
-	recipie = {
+	recipe = {
 		{"group:wool", "group:wool", "group:wool" },
 		{"group:stick","",           "group:stick"},
 		{"",           "group:stick",""           },
@@ -189,7 +189,7 @@ minetest.register_craft({
 
 minetest.register_craft({
 	output = "glider:rocket 33",
-	recipie = {
+	recipe = {
 		{"group:wood","tnt:gunpowder","group:wood"},
 		{"group:wood","tnt:gunpowder","group:wood"},
 		{"group:wood","tnt:gunpowder","group:wood"},
