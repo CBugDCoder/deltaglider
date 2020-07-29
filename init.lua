@@ -13,6 +13,7 @@ end
 local mouse_controls = minetest.settings:get_bool("glider_mouse_controls", true)
 
 local on_step = function(self, dtime, moveresult)
+	self.time_from_last_rocket = math.min(self.time_from_last_rocket+dtime,10)
 	local vel = self.object:get_velocity()
 	local speed = self.speed
 	local actual_speed = math.sqrt(vel.x^2+vel.y^2+vel.z^2)
@@ -109,6 +110,7 @@ minetest.register_entity("glider:hangglider", {
 	driver = "",
 	free_fall = false,
 	speed = 0,
+	time_from_last_rocket = 0,
 })
 
 minetest.register_tool("glider:glider", {
@@ -152,7 +154,8 @@ minetest.register_craftitem("glider:rocket", {
 		if attach then
 			local luaent = attach:get_luaentity()
 			if luaent.name == "glider:hangglider" then
-				luaent.speed = luaent.speed + 10
+				luaent.speed = luaent.speed + luaent.time_from_last_rocket
+				luaent.time_from_last_rocket = 0
 				itemstack:take_item()
 				minetest.add_particlespawner({
 					amount = 1000,
