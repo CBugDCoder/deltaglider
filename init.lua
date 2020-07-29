@@ -17,31 +17,15 @@ local on_step = function(self, dtime)
 	
 	--Check Surroundings
 	local land = false
-	crash_speed = 0
-	local under = minetest.get_node(vector.new(pos.x,pos.y-1,pos.z))
-	local above = minetest.get_node(vector.new(pos.x,pos.y+1,pos.z))
-	local north = minetest.get_node(vector.new(pos.x,pos.y,pos.z+1))
-	local south = minetest.get_node(vector.new(pos.x,pos.y,pos.z-1))
-	local east = minetest.get_node(vector.new(pos.x+1,pos.y,pos.z))
-	local west = minetest.get_node(vector.new(pos.x-1,pos.y,pos.z))
-	if minetest.registered_nodes[under.name].walkable then
-		land = true
-		crash_speed = math.abs(math.min(0, vel.y))
-	elseif minetest.registered_nodes[above.name].walkable then
-		land = true
-		crash_speed = math.abs(math.max(0, vel.y))
-	elseif minetest.registered_nodes[north.name].walkable then
-		land = true
-		crash_speed = math.abs(math.max(0, vel.z))
-	elseif minetest.registered_nodes[south.name].walkable then
-		land = true
-		crash_speed = math.abs(math.min(0, vel.z))
-	elseif minetest.registered_nodes[east.name].walkable then
-		land = true
-		crash_speed = math.abs(math.max(0, vel.x))
-	elseif minetest.registered_nodes[west.name].walkable then
-		land = true
-		crash_speed = math.abs(math.min(0, vel.x))
+	local crash_speed = 0
+	if moveresult and moveresult.collisions and moveresult.collides then
+		for _,collision in pairs(moveresult.collisions) do
+			land = true
+			crash_speed = crash_speed+
+						  math.abs(collision.old_velocity.x-collision.new_velocity.x)+
+						  math.abs(collision.old_velocity.y-collision.new_velocity.y)+
+						  math.abs(collision.old_velocity.z-collision.new_velocity.z)
+		end
 	end
 	
 	if land then
