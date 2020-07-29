@@ -35,7 +35,7 @@ local on_step = function(self, dtime)
 		local crash_dammage = math.floor(math.max(crash_speed-5, 0))
 		if crash_dammage > 0 then
 			local node = minetest.get_node(pos)
-			if minetest.registered_nodes[node.name].liquidtype ~= "none" then
+			if minetest.registered_nodes[node.name].liquidtype == "none" then
 				local hp = driver:get_hp()
 				driver:set_hp(hp-crash_dammage, {type = "fall"})
 			end
