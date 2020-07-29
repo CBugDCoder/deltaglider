@@ -5,6 +5,11 @@ local function rot_to_dir(rot)
 	return {x = x, y = y, z = z}
 end
 
+local function get_pitch_lift(y)
+	local l = -(1964/1755*y*y*y*y)-(2549/3510*y*y*y)+(2591/7020*y*y)+(2594/3510*y)+(.75)
+	return l
+end
+
 local mouse_controls = minetest.settings:get_bool("glider_mouse_controls", true)
 
 local on_step = function(self, dtime, moveresult)
@@ -77,11 +82,13 @@ local on_step = function(self, dtime, moveresult)
 		end
 	end
 	
-	speed = math.max(speed - (rot.x^3)*4 * dtime, 2)
+	speed = math.min(math.max((speed - (rot.x^3)*4 * dtime) - speed * 0.01 * dtime, 2),30)
 	self.object:set_rotation(rot)
 	local dir = rot_to_dir(rot)
-	local gravity = -20 * (((speed)/4)^-1)/2
-	dir = {x = dir.x*speed, y = dir.y*speed+gravity, z = dir.z*speed}
+	local lift = (speed/2) * get_pitch_lift(dir.y) * (1-(math.abs(rot.z/math.pi)))
+	local vertical_acc = lift-5
+	self.grav_speed = math.min(math.max(self.grav_speed + vertical_acc*dtime,-10),1)
+	dir = {x = dir.x*speed, y = dir.y*speed+self.grav_speed, z = dir.z*speed}
 	self.speed = speed
 	self.object:set_velocity(dir)
 end
@@ -98,6 +105,7 @@ minetest.register_entity("glider:hangglider", {
 	static_save = false,
 	--Functions
 	on_step = on_step,
+	grav_speed = 0,
 	driver = "",
 	free_fall = false,
 	speed = 0,
