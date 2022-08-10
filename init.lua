@@ -11,9 +11,10 @@ local function get_pitch_lift(y)
 end
 
 local mouse_controls = minetest.settings:get_bool("glider_mouse_controls", true)
+local rocket_delay = tonumber(minetest.settings:get("glider_rocket_delay") or 10)
 
 local on_step = function(self, dtime, moveresult)
-	self.time_from_last_rocket = math.min(self.time_from_last_rocket+dtime,10)
+	self.time_from_last_rocket = math.min(self.time_from_last_rocket+dtime,rocket_delay)
 	local vel = self.object:get_velocity()
 	local speed = self.speed
 	local actual_speed = math.sqrt(vel.x^2+vel.y^2+vel.z^2)
@@ -96,6 +97,10 @@ end
 
 
 
+local init_delay = 1
+if rocket_delay >= 1 then
+	init_delay = rocket_delay
+end
 
 minetest.register_entity("glider:hangglider", {
 	physical = true,
@@ -110,7 +115,7 @@ minetest.register_entity("glider:hangglider", {
 	driver = "",
 	free_fall = false,
 	speed = 0,
-	time_from_last_rocket = 0,
+	time_from_last_rocket = init_delay, -- enforce a 1s delay between opening the glider and rocket use
 })
 
 minetest.register_tool("glider:glider", {
@@ -142,6 +147,8 @@ minetest.register_tool("glider:glider", {
 			luaent.speed = math.sqrt(vel.x^2+(vel.y/4)^2+vel.z^2)
 			user:set_attach(ent, "", {x=0,y=0,z=-10}, {x=90,y=0,z=0})
 			user:set_eye_offset({x=0,y=-16.25,z=0},{x=0,y=-15,z=0})
+			itemstack:set_wear(itemstack:get_wear() + 255 )
+			return itemstack
 		end
 	end,
 })
@@ -154,6 +161,9 @@ minetest.register_craftitem("glider:rocket", {
 		if attach then
 			local luaent = attach:get_luaentity()
 			if luaent.name == "glider:hangglider" then
+				if luaent.time_from_last_rocket < rocket_delay then --anti rocket spam protection
+					return itemstack
+				end
 				luaent.speed = luaent.speed + luaent.time_from_last_rocket
 				luaent.time_from_last_rocket = 0
 				itemstack:take_item()
