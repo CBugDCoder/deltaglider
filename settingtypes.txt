@@ -1,6 +1,9 @@
 #When enabled the player will control the glider via looking around.
 #When disabled the player will control the glider via the movement keys.
-glider_mouse_controls (Mouse Controls) bool true
+glider.mouse_controls (Mouse Controls) bool true
+
+#Enable rocket boost physics and craft recipe
+glider.enable_rockets (Enable rockets) bool true
 
 #Set the delay between rocket uses to avoid insane rocket-spam speeds
-glider_rocket_delay (Rocket Delay) int 10
+glider.rocket_delay (Rocket Delay) int 10
