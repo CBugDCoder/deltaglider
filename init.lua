@@ -21,6 +21,10 @@ local on_step = function(self, dtime, moveresult)
 	local actual_speed = math.sqrt(vel.x^2+vel.y^2+vel.z^2)
 	local rot = self.object:get_rotation()
 	local driver = minetest.get_player_by_name(self.driver)
+	if not driver then
+		self.object:remove()
+		return
+	end
 	local pos = self.object:get_pos()
 	
 	--Check Surroundings
