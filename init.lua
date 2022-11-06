@@ -21,6 +21,12 @@ local on_step = function(self, dtime, moveresult)
 	local driver = minetest.get_player_by_name(self.driver)
 	local pos = self.object:get_pos()
 	
+	-- Handle nil driver variable
+	-- Addresses https://github.com/CBugDCoder/glider/issues/7
+	if driver == nil then
+		return
+	end
+	
 	--Check Surroundings
 	local land = false
 	local crash_speed = 0
