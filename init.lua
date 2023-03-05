@@ -164,9 +164,9 @@ minetest.register_tool("glider:glider", {
 minetest.register_craft({
 	output = "glider:glider",
 	recipe = {
-		{"group:wool", "group:wool", "group:wool" },
-		{"group:stick","",           "group:stick"},
-		{"",           "group:stick",""           },
+		{"", "default:paper", "" },
+		{"default:paper","default:paper","default:paper"},
+		{"default:paper","group:stick","default:paper"},
 	}
 })
 
