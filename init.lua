@@ -56,7 +56,7 @@ local on_step = function(self, dtime, moveresult)
 	if land then
 		driver:set_detach()
 		driver:set_eye_offset(vector.zero(), vector.zero())
-		driver:add_player_velocity(vel)
+		driver:add_velocity(vel)
 		local crash_dammage = math.floor(math.max(crash_speed - 5, 0))
 		if crash_dammage > 0 then
 			local node = minetest.get_node(pos)
@@ -131,15 +131,15 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 	local name = user:get_player_name()
 	local pos = user:get_pos()
 	local attach = user:get_attach()
-	local luaent
+	local luaent, vel
 	if attach then
 		luaent = attach:get_luaentity()
 		if luaent.name == "glider:hangglider" then
-			local vel = attach:get_velocity()
+			vel = attach:get_velocity()
 			attach:remove()
 			user:set_detach()
 			user:set_eye_offset(vector.zero(), vector.zero())
-			user:add_player_velocity(vel)
+			user:add_velocity(vel)
 		end
 	else
 		pos.y = pos.y + 1.5
@@ -157,7 +157,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 			z = 0
 		}
 		ent:set_rotation(rot)
-		local vel = vector.multiply(user:get_player_velocity(), 2)
+		vel = vector.multiply(user:get_velocity(), 2)
 		ent:set_velocity(vel)
 		luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
 		user:set_attach(ent, "", { x = 0, y = 0, z = -10 },
