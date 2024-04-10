@@ -177,7 +177,7 @@ minetest.register_entity("glider:hangglider", {
 })
 
 minetest.register_tool("glider:glider", {
-	description = "Colored Hangglider",
+	description = "Delta Glider",
 	inventory_image = "glider_glider.png",
 	on_use = on_use,
 })
