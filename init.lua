@@ -6,18 +6,20 @@ local function rot_to_dir(rot)
 end
 
 local function get_pitch_lift(y)
-	local l = -(1964 / 1755 * y * y * y * y) - (2549 / 3510 * y * y * y)
-		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + .75
+	local l = -(1964 / 1755 * y * y * y * y)
+		- (2549 / 3510 * y * y * y)
+		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
 	return l
 end
 
 local mouse_controls = minetest.settings:get_bool("glider_mouse_controls", true)
 
 local on_step = function(self, dtime, moveresult)
-	self.time_from_last_rocket = math.min(self.time_from_last_rocket+dtime, 10)
+	self.time_from_last_rocket = math.min(
+		self.time_from_last_rocket + dtime, 10)
+
 	local vel = self.object:get_velocity()
 	local speed = self.speed
-	--local actual_speed = math.sqrt(vel.x ^ 2 + vel.y ^ 2 + vel.z ^ 2)
 	local rot = self.object:get_rotation()
 	local driver = minetest.get_player_by_name(self.driver)
 	local pos = self.object:get_pos()
@@ -29,9 +31,12 @@ local on_step = function(self, dtime, moveresult)
 		for _ ,collision in pairs(moveresult.collisions) do
 			land = true
 			crash_speed = crash_speed
-				+ math.abs(collision.old_velocity.x - collision.new_velocity.x)
-				+ math.abs(collision.old_velocity.y - collision.new_velocity.y)
-				+ math.abs(collision.old_velocity.z - collision.new_velocity.z)
+				+ math.abs(collision.old_velocity.x
+					- collision.new_velocity.x)
+				+ math.abs(collision.old_velocity.y
+					- collision.new_velocity.y)
+				+ math.abs(collision.old_velocity.z
+					- collision.new_velocity.z)
 		end
 	end
 
@@ -84,13 +89,23 @@ local on_step = function(self, dtime, moveresult)
 		end
 	end
 
-	speed = math.min(math.max((speed - (rot.x ^ 3) * 4 * dtime) - speed * 0.01 * dtime, 2), 30)
+	speed = math.min(math.max((speed - (rot.x ^ 3) * 4 * dtime)
+		- speed * 0.01 * dtime, 2), 30)
+
 	self.object:set_rotation(rot)
 	local dir = rot_to_dir(rot)
-	local lift = (speed * 0.5) * get_pitch_lift(dir.y) * (1 - (math.abs(rot.z / math.pi)))
+	local lift = (speed * 0.5) * get_pitch_lift(dir.y)
+		* (1 - (math.abs(rot.z / math.pi)))
+
 	local vertical_acc = lift - 5
-	self.grav_speed = math.min(math.max(self.grav_speed + vertical_acc * dtime, -10), 1)
-	dir = { x = dir.x * speed, y = dir.y * speed + self.grav_speed, z = dir.z * speed }
+	self.grav_speed = math.min(math.max(self.grav_speed
+		+ vertical_acc * dtime, -10), 1)
+
+	dir = {
+		x = dir.x * speed,
+		y = dir.y * speed + self.grav_speed,
+		z = dir.z * speed
+	}
 	self.speed = speed
 	self.object:set_velocity(dir)
 end
@@ -114,13 +129,19 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 		local ent = minetest.add_entity(pos, "glider:hangglider")
 		luaent = ent:get_luaentity()
 		luaent.driver = name
-		local rot = { y = user:get_look_horizontal(), x = -user:get_look_vertical(), z = 0 }
+		local rot = {
+			y = user:get_look_horizontal(),
+			x = -user:get_look_vertical(),
+			z = 0
+		}
 		ent:set_rotation(rot)
 		local vel = vector.multiply(user:get_player_velocity(), 2)
 		ent:set_velocity(vel)
 		luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
-		user:set_attach(ent, "", { x = 0, y = 0, z = -10 }, { x = 90, y = 0, z = 0 })
-		user:set_eye_offset({ x = 0, y = -16.25, z = 0 },{ x = 0, y = -15, z = 0 })
+		user:set_attach(ent, "", { x = 0, y = 0, z = -10 },
+			{ x = 90, y = 0, z = 0 })
+		user:set_eye_offset({ x = 0, y = -16.25, z = 0 },
+			{ x = 0, y = -15, z = 0 })
 		local color = itemstack:get_meta():get("hangglider_color")
 		if color then
 			ent:set_properties({
