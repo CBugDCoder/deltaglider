@@ -1,3 +1,7 @@
 #When enabled the player will control the glider via looking around.
 #When disabled the player will control the glider via the movement keys.
 glider.mouse_controls (Mouse Controls) bool true
+
+# The number of times the glider can be used before breaking. Set to 0 for infinite uses.
+glider.uses (Glider uses) int 250
+

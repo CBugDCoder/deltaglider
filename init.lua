@@ -1,3 +1,7 @@
+
+local glider_uses = tonumber(minetest.settings:get(
+	"glider.uses")) or 250
+
 local mouse_controls = minetest.settings:get_bool(
 	"glider.mouse_controls", true)
 
@@ -160,6 +164,10 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 				textures = { "wool_white.png^[multiply:#" .. color }
 			})
 		end
+		if glider_uses > 0 then
+			itemstack:add_wear(65535 / glider_uses)
+		end
+		return itemstack
 	end
 end
 
