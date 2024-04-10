@@ -1,3 +1,5 @@
+local has_player_monoids = minetest.get_modpath("player_monoids")
+
 
 local glider_uses = tonumber(minetest.settings:get(
 	"glider.uses")) or 250
@@ -7,6 +9,28 @@ local mouse_controls = minetest.settings:get_bool(
 
 local use_rockets = minetest.settings:get_bool(
 	"glider.use_rockets", true)
+
+local function set_physics_overrides(player, overrides)
+	if has_player_monoids then
+		for name, value in pairs(overrides) do
+			player_monoids[name]:add_change(
+				player, value, "glider:glider")
+		end
+	else
+		player:set_physics_override(overrides)
+	end
+end
+
+local function remove_physics_overrides(player)
+	for _, name in pairs({ "jump", "speed", "gravity" }) do
+		if has_player_monoids then
+			player_monoids[name]:del_change(
+				player, "glider:glider")
+		else
+			player:set_physics_override({ [name] = 1 })
+		end
+	end
+end
 local function rot_to_dir(rot)
 	local x = -math.cos(rot.x) * math.sin(rot.y)
 	local y = math.sin(rot.x)
@@ -56,6 +80,7 @@ local on_step = function(self, dtime, moveresult)
 	if land then
 		driver:set_detach()
 		driver:set_eye_offset(vector.zero(), vector.zero())
+		remove_physics_overrides(driver)
 		driver:add_velocity(vel)
 		local crash_dammage = math.floor(math.max(crash_speed - 5, 0))
 		if crash_dammage > 0 then
@@ -139,6 +164,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 			attach:remove()
 			user:set_detach()
 			user:set_eye_offset(vector.zero(), vector.zero())
+			remove_physics_overrides(user)
 			user:add_velocity(vel)
 		end
 	else
@@ -164,6 +190,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 			{ x = 90, y = 0, z = 0 })
 		user:set_eye_offset({ x = 0, y = -16.25, z = 0 },
 			{ x = 0, y = -15, z = 0 })
+		set_physics_overrides(user, { jump = 0, gravity = 0.25 })
 		local color = itemstack:get_meta():get("hangglider_color")
 		if color then
 			ent:set_properties({
@@ -206,3 +233,12 @@ if use_rockets then
 	dofile(mp .. "/rocket.lua")
 end
 
+minetest.register_on_dieplayer(function(player)
+	--local name = player:get_player_name() hanggliding_players[name] = nil
+	remove_physics_overrides(player)
+end)
+
+minetest.register_on_leaveplayer(function(player)
+	--local name = player:get_player_name()	hanggliding_players[name] = nil	hud_overlay_ids[name] = nil
+	remove_physics_overrides(player)
+end)
