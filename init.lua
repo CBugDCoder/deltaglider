@@ -16,11 +16,11 @@ local on_step = function(self, dtime, moveresult)
 	self.time_from_last_rocket = math.min(self.time_from_last_rocket+dtime,10)
 	local vel = self.object:get_velocity()
 	local speed = self.speed
-	local actual_speed = math.sqrt(vel.x^2+vel.y^2+vel.z^2)
+	--local actual_speed = math.sqrt(vel.x^2+vel.y^2+vel.z^2)
 	local rot = self.object:get_rotation()
 	local driver = minetest.get_player_by_name(self.driver)
 	local pos = self.object:get_pos()
-	
+
 	--Check Surroundings
 	local land = false
 	local crash_speed = 0
@@ -116,11 +116,11 @@ minetest.register_entity("glider:hangglider", {
 minetest.register_tool("glider:glider", {
 	description = "Glider",
 	inventory_image = "glider_glider.png",
-	on_use = function(itemstack, user, pt)
+	on_use = function(itemstack, user, pt) --luacheck: no unused args
 		local name = user:get_player_name()
 		local pos = user:get_pos()
 		local attach = user:get_attach()
-		local luaent = nil
+		local luaent
 		if attach then 
 			luaent = attach:get_luaentity()
 			if luaent.name == "glider:hangglider" then
@@ -149,7 +149,7 @@ minetest.register_tool("glider:glider", {
 minetest.register_craftitem("glider:rocket", {
 	description = "Rocket (Use while gliding to boost glider speed)",
 	inventory_image = "glider_rocket.png",
-	on_use = function(itemstack, user, pt)
+	on_use = function(itemstack, user, pt) --luacheck: no unused args
 		local attach = user:get_attach()
 		if attach then
 			local luaent = attach:get_luaentity()
