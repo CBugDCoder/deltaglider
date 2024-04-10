@@ -19,13 +19,17 @@ end
 
 
 local on_step = function(self, dtime, moveresult)
+	local driver = minetest.get_player_by_name(self.driver)
+	if not driver then
+		-- driver logged off
+		return
+	end
 	self.time_from_last_rocket = math.min(
 		self.time_from_last_rocket + dtime, 10)
 
 	local vel = self.object:get_velocity()
 	local speed = self.speed
 	local rot = self.object:get_rotation()
-	local driver = minetest.get_player_by_name(self.driver)
 	local pos = self.object:get_pos()
 
 	--Check Surroundings
