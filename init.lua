@@ -63,23 +63,24 @@ local on_step = function(self, dtime, moveresult)
 		rot.x = rot.x + (-driver:get_look_vertical() - rot.x) * dtime * 2
 		local hor = driver:get_look_horizontal()
 		local angle = hor - rot.y
-		if angle < -math.pi then angle = angle + math.pi * 2 end
-		if angle > math.pi then angle = angle - math.pi * 2 end
+		if angle < -math.pi then
+			angle = angle + math.pi * 2
+		elseif angle > math.pi then
+			angle = angle - math.pi * 2
+		end
 		rot.y = rot.y + angle * dtime * 2
 		speed = speed - math.abs(angle * dtime)
 		rot.z = -angle
 	else
 		local control = driver:get_player_control()
-		if control.up then
+		if control.up and not control.down then
 			rot.x = rot.x + dtime
-		end
-		if control.down then
+		elseif control.down and not control.up then
 			rot.x = rot.x - dtime
 		end
-		if control.left then
+		if control.left and not control.right then
 			rot.z = rot.z - 2 * dtime
-		end
-		if control.right then
+		elseif control.right and not control.left then
 			rot.z = rot.z + 2 * dtime
 		end
 
