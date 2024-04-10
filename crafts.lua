@@ -75,7 +75,9 @@ minetest.register_on_craft(function(crafted_item, _, old_craft_grid)
 		end
 		local meta = crafted_item:get_meta()
 		meta:set_string("description", color_name .. " Hangglider")
-		meta:set_string("inventory_image", "glider_glider.png^(glider_color.png^[multiply:#" .. color .. ")")
+		meta:set_string("inventory_image",
+			"glider_glider.png^(glider_glider_color.png^[multiply:#"
+			.. color .. ")")
 		meta:set_string("hangglider_color", color)
 		crafted_item:set_wear(wear)
 		return crafted_item

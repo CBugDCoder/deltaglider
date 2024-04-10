@@ -121,6 +121,12 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 		luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
 		user:set_attach(ent, "", { x = 0, y = 0, z = -10 }, { x = 90, y = 0, z = 0 })
 		user:set_eye_offset({ x = 0, y = -16.25, z = 0 },{ x = 0, y = -15, z = 0 })
+		local color = itemstack:get_meta():get("hangglider_color")
+		if color then
+			ent:set_properties({
+				textures = { "wool_white.png^[multiply:#" .. color }
+			})
+		end
 	end
 end
 
