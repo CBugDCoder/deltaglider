@@ -1,3 +1,5 @@
+local use_rockets = minetest.settings:get_bool(
+	"glider.use_rockets", true)
 local function rot_to_dir(rot)
 	local x = -math.cos(rot.x) * math.sin(rot.y)
 	local y = math.sin(rot.x)
@@ -174,4 +176,9 @@ minetest.register_tool("glider:glider", {
 	on_use = on_use,
 })
 
-dofile(minetest.get_modpath("glider") .. "/crafts.lua")
+local mp = minetest.get_modpath("glider")
+dofile(mp .. "/crafts.lua")
+if use_rockets then
+	dofile(mp .. "/rocket.lua")
+end
+
