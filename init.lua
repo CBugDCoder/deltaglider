@@ -138,7 +138,7 @@ minetest.register_tool("glider:glider", {
 			luaent.driver = name
 			local rot = { y = user:get_look_horizontal(), x = -user:get_look_vertical(), z = 0 }
 			ent:set_rotation(rot)
-			local vel = vector.multiply(user:get_player_velocity(), 2)
+			local vel = vector.multiply(user:get_velocity(), 2)
 			ent:set_velocity(vel)
 			luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
 			user:set_attach(ent, "", { x = 0, y = 0, z = -10 }, { x = 90, y = 0, z = 0 })
