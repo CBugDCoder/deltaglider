@@ -46,7 +46,7 @@ end
 -- This recipe is just a placeholder
 do
 	local item = ItemStack("glider:glider")
-	item:get_meta():set_string("description", "Colored Hangglider")
+	item:get_meta():set_string("description", "Colored Delta Glider")
 	minetest.register_craft({
 		output = item:to_string(),
 		recipe = { "glider:glider", "group:dye" },
@@ -74,7 +74,7 @@ minetest.register_on_craft(function(crafted_item, _, old_craft_grid)
 			return ItemStack({ name = "glider:glider", wear = wear })
 		end
 		local meta = crafted_item:get_meta()
-		meta:set_string("description", color_name .. " Hangglider")
+		meta:set_string("description", color_name .. " Delta Glider")
 		meta:set_string("inventory_image",
 			"glider_glider.png^(glider_glider_color.png^[multiply:#"
 			.. color .. ")")
@@ -116,7 +116,7 @@ minetest.register_craft({
 ---
 
 minetest.register_craftitem("glider:rocket", {
-	description = "Rocket (Use while gliding to boost glider speed)",
+	description = "Rocket (Use while gliding to boost delta glider speed)",
 	inventory_image = "glider_rocket.png",
 	on_use = function(itemstack, user, pt) --luacheck: no unused args
 		local attach = user:get_attach()
