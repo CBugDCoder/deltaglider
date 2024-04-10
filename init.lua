@@ -116,6 +116,9 @@ local on_step = function(self, dtime, moveresult)
 end
 
 local on_use = function(itemstack, user, pt) --luacheck: no unused args
+	if type(user) ~= "userdata" then
+		return  -- Real players only
+	end
 	local name = user:get_player_name()
 	local pos = user:get_pos()
 	local attach = user:get_attach()
