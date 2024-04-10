@@ -14,7 +14,7 @@ end
 local mouse_controls = minetest.settings:get_bool("glider_mouse_controls", true)
 
 local on_step = function(self, dtime, moveresult)
-	self.time_from_last_rocket = math.min(self.time_from_last_rocket+dtime, 10)
+	self.time_from_last_rocket = math.min(self.time_from_last_rocket + dtime, 10)
 	local vel = self.object:get_velocity()
 	local speed = self.speed
 	--local actual_speed = math.sqrt(vel.x ^ 2 + vel.y ^ 2 + vel.z ^ 2)
