@@ -28,6 +28,7 @@ local on_step = function(self, dtime, moveresult)
 		-- driver logged off
 		return
 	end
+
 	self.time_from_last_rocket = math.min(
 		self.time_from_last_rocket + dtime, 10)
 
@@ -36,7 +37,7 @@ local on_step = function(self, dtime, moveresult)
 	local rot = self.object:get_rotation()
 	local pos = self.object:get_pos()
 
-	--Check Surroundings
+	-- Check surroundings
 	local land = false
 	local crash_speed = 0
 	if moveresult and moveresult.collisions and moveresult.collides then
