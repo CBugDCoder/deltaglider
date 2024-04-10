@@ -22,11 +22,11 @@ local on_step = function(self, dtime, moveresult)
 	local driver = minetest.get_player_by_name(self.driver)
 	local pos = self.object:get_pos()
 
-	--Check Surroundings
+	-- Check surroundings
 	local land = false
 	local crash_speed = 0
 	if moveresult and moveresult.collisions and moveresult.collides then
-		for _ ,collision in pairs(moveresult.collisions) do
+		for _, collision in pairs(moveresult.collisions) do
 			land = true
 			crash_speed = crash_speed
 				+ math.abs(collision.old_velocity.x - collision.new_velocity.x)
@@ -38,7 +38,7 @@ local on_step = function(self, dtime, moveresult)
 	if land then
 		driver:set_detach()
 		driver:set_eye_offset({ x = 0, y = 0, z = 0 }, { x = 0, y = 0, z = 0})
-		driver:add_player_velocity(vel)
+		driver:add_velocity(vel)
 		local crash_dammage = math.floor(math.max(crash_speed - 5, 0))
 		if crash_dammage > 0 then
 			local node = minetest.get_node(pos)
@@ -105,7 +105,7 @@ minetest.register_entity("glider:hangglider", {
 	mesh = "glider_hangglider.obj",
 	textures = { "glider_hangglider.png" },
 	static_save = false,
-	--Functions
+	-- Functions
 	on_step = on_step,
 	grav_speed = 0,
 	driver = "",
@@ -129,7 +129,7 @@ minetest.register_tool("glider:glider", {
 				attach:remove()
 				user:set_detach()
 				user:set_eye_offset({ x = 0, y = 0, z = 0}, { x = 0, y = 0, z = 0 })
-				user:add_player_velocity(vel)
+				user:add_velocity(vel)
 			end
 		else
 			pos.y = pos.y + 1.5
@@ -142,7 +142,7 @@ minetest.register_tool("glider:glider", {
 			ent:set_velocity(vel)
 			luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
 			user:set_attach(ent, "", { x = 0, y = 0, z = -10 }, { x = 90, y = 0, z = 0 })
-			user:set_eye_offset({ x = 0, y = -16.25, z = 0 },{ x = 0, y = -15, z = 0 })
+			user:set_eye_offset({ x = 0, y = -16.25, z = 0 }, { x = 0, y = -15, z = 0 })
 		end
 	end,
 })
