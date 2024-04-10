@@ -144,6 +144,11 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 	else
 		pos.y = pos.y + 1.5
 		local ent = minetest.add_entity(pos, "glider:hangglider")
+		if not ent then
+			-- failed to create entity -> abort
+			return
+		end
+
 		luaent = ent:get_luaentity()
 		luaent.driver = name
 		local rot = {
