@@ -1,3 +1,6 @@
+local mouse_controls = minetest.settings:get_bool(
+	"glider.mouse_controls", true)
+
 local use_rockets = minetest.settings:get_bool(
 	"glider.use_rockets", true)
 local function rot_to_dir(rot)
@@ -14,7 +17,6 @@ local function get_pitch_lift(y)
 	return l
 end
 
-local mouse_controls = minetest.settings:get_bool("glider_mouse_controls", true)
 
 local on_step = function(self, dtime, moveresult)
 	self.time_from_last_rocket = math.min(
