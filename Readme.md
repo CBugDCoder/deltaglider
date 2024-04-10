@@ -1,5 +1,7 @@
 # Glider: A Realistic Hang Glider Mod
 
+[![luacheck](https://github.com/SwissalpS/minetest_glider/workflows/luacheck/badge.svg)](https://github.com/SwissalpS/minetest_glider/actions)
+
 ![Screenshot](screenshot.png)
 
 Have you ever wanted to glide through the mountains and feel the wind rushing by you?
