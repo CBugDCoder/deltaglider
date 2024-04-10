@@ -95,7 +95,34 @@ local on_step = function(self, dtime, moveresult)
 	self.object:set_velocity(dir)
 end
 
-
+local on_use = function(itemstack, user, pt) --luacheck: no unused args
+	local name = user:get_player_name()
+	local pos = user:get_pos()
+	local attach = user:get_attach()
+	local luaent
+	if attach then
+		luaent = attach:get_luaentity()
+		if luaent.name == "glider:hangglider" then
+			local vel = attach:get_velocity()
+			attach:remove()
+			user:set_detach()
+			user:set_eye_offset({ x = 0, y = 0, z = 0}, { x = 0, y = 0, z = 0 })
+			user:add_player_velocity(vel)
+		end
+	else
+		pos.y = pos.y + 1.5
+		local ent = minetest.add_entity(pos, "glider:hangglider")
+		luaent = ent:get_luaentity()
+		luaent.driver = name
+		local rot = { y = user:get_look_horizontal(), x = -user:get_look_vertical(), z = 0 }
+		ent:set_rotation(rot)
+		local vel = vector.multiply(user:get_player_velocity(), 2)
+		ent:set_velocity(vel)
+		luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
+		user:set_attach(ent, "", { x = 0, y = 0, z = -10 }, { x = 90, y = 0, z = 0 })
+		user:set_eye_offset({ x = 0, y = -16.25, z = 0 },{ x = 0, y = -15, z = 0 })
+	end
+end
 
 
 minetest.register_entity("glider:hangglider", {
@@ -115,79 +142,9 @@ minetest.register_entity("glider:hangglider", {
 })
 
 minetest.register_tool("glider:glider", {
-	description = "Glider",
+	description = "Colored Hangglider",
 	inventory_image = "glider_glider.png",
-	on_use = function(itemstack, user, pt) --luacheck: no unused args
-		local name = user:get_player_name()
-		local pos = user:get_pos()
-		local attach = user:get_attach()
-		local luaent
-		if attach then
-			luaent = attach:get_luaentity()
-			if luaent.name == "glider:hangglider" then
-				local vel = attach:get_velocity()
-				attach:remove()
-				user:set_detach()
-				user:set_eye_offset({ x = 0, y = 0, z = 0}, { x = 0, y = 0, z = 0 })
-				user:add_player_velocity(vel)
-			end
-		else
-			pos.y = pos.y + 1.5
-			local ent = minetest.add_entity(pos, "glider:hangglider")
-			luaent = ent:get_luaentity()
-			luaent.driver = name
-			local rot = { y = user:get_look_horizontal(), x = -user:get_look_vertical(), z = 0 }
-			ent:set_rotation(rot)
-			local vel = vector.multiply(user:get_player_velocity(), 2)
-			ent:set_velocity(vel)
-			luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
-			user:set_attach(ent, "", { x = 0, y = 0, z = -10 }, { x = 90, y = 0, z = 0 })
-			user:set_eye_offset({ x = 0, y = -16.25, z = 0 },{ x = 0, y = -15, z = 0 })
-		end
-	end,
+	on_use = on_use,
 })
 
-minetest.register_craftitem("glider:rocket", {
-	description = "Rocket (Use while gliding to boost glider speed)",
-	inventory_image = "glider_rocket.png",
-	on_use = function(itemstack, user, pt) --luacheck: no unused args
-		local attach = user:get_attach()
-		if attach then
-			local luaent = attach:get_luaentity()
-			if luaent.name == "glider:hangglider" then
-				luaent.speed = luaent.speed + luaent.time_from_last_rocket
-				luaent.time_from_last_rocket = 0
-				itemstack:take_item()
-				minetest.add_particlespawner({
-					amount = 1000,
-					time = 2,
-					minpos = { x = -0.125, y = -0.125, z = -0.125 },
-					maxpos = { x = 0.125, y = 0.125, z = 0.125 },
-					minexptime = 0.5,
-					maxexptime = 1.5,
-					attached = attach,
-					texture = "glider_rocket_particle.png",
-				})
-				return itemstack
-			end
-		end
-	end
-})
-
-minetest.register_craft({
-	output = "glider:glider",
-	recipe = {
-		{ "group:wool", "group:wool", "group:wool" },
-		{ "group:stick", "", "group:stick" },
-		{ "", "group:stick", "" },
-	}
-})
-
-minetest.register_craft({
-	output = "glider:rocket 33",
-	recipe = {
-		{ "group:wood", "tnt:gunpowder", "group:wood" },
-		{ "group:wood", "tnt:gunpowder", "group:wood" },
-		{ "group:wood", "tnt:gunpowder", "group:wood" },
-	}
-})
+dofile(minetest.get_modpath("glider") .. "/crafts.lua")
