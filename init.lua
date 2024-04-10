@@ -44,7 +44,7 @@ local on_step = function(self, dtime, moveresult)
 
 	if land then
 		driver:set_detach()
-		driver:set_eye_offset({ x = 0, y = 0, z = 0 }, { x = 0, y = 0, z = 0})
+		driver:set_eye_offset(vector.zero(), vector.zero())
 		driver:add_player_velocity(vel)
 		local crash_dammage = math.floor(math.max(crash_speed - 5, 0))
 		if crash_dammage > 0 then
@@ -123,7 +123,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 			local vel = attach:get_velocity()
 			attach:remove()
 			user:set_detach()
-			user:set_eye_offset({ x = 0, y = 0, z = 0}, { x = 0, y = 0, z = 0 })
+			user:set_eye_offset(vector.zero(), vector.zero())
 			user:add_player_velocity(vel)
 		end
 	else
