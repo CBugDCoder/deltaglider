@@ -1,3 +1,17 @@
+-- pull some often used (and unlikely to be overriden)
+-- functions to local scope
+local math_abs = math.abs
+local math_cos = math.cos
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local math_pi = math.pi
+local math_pi2 = 2 * math_pi
+local math_sin = math.sin
+local math_sqrt = math.sqrt
+local vector_multiply = vector.multiply
+local vector_new = vector.new
+local vector_zero = vector.zero
 local has_player_monoids = minetest.get_modpath("player_monoids")
 
 
@@ -9,6 +23,8 @@ local mouse_controls = minetest.settings:get_bool(
 
 local use_rockets = minetest.settings:get_bool(
 	"glider.use_rockets", true)
+
+local glider_wear = 0 < glider_uses and (65535 / glider_uses) or nil
 
 local function set_physics_overrides(player, overrides)
 	if has_player_monoids then
@@ -32,10 +48,10 @@ local function remove_physics_overrides(player)
 	end
 end
 local function rot_to_dir(rot)
-	return vector.new(
-		-math.cos(rot.x) * math.sin(rot.y),
-		math.sin(rot.x),
-		math.cos(rot.x) * math.cos(rot.y)
+	return vector_new(
+		-math_cos(rot.x) * math_sin(rot.y),
+		math_sin(rot.x),
+		math_cos(rot.x) * math_cos(rot.y)
 	)
 end
 
@@ -53,7 +69,7 @@ local on_step = function(self, dtime, moveresult)
 		return
 	end
 
-	self.time_from_last_rocket = math.min(
+	self.time_from_last_rocket = math_min(
 		self.time_from_last_rocket + dtime, 10)
 
 	local vel = self.object:get_velocity()
@@ -68,21 +84,21 @@ local on_step = function(self, dtime, moveresult)
 		for _ ,collision in pairs(moveresult.collisions) do
 			land = true
 			crash_speed = crash_speed
-				+ math.abs(collision.old_velocity.x
+				+ math_abs(collision.old_velocity.x
 					- collision.new_velocity.x)
-				+ math.abs(collision.old_velocity.y
+				+ math_abs(collision.old_velocity.y
 					- collision.new_velocity.y)
-				+ math.abs(collision.old_velocity.z
+				+ math_abs(collision.old_velocity.z
 					- collision.new_velocity.z)
 		end
 	end
 
 	if land then
 		driver:set_detach()
-		driver:set_eye_offset(vector.zero(), vector.zero())
+		driver:set_eye_offset(vector_zero(), vector_zero())
 		remove_physics_overrides(driver)
 		driver:add_velocity(vel)
-		local crash_dammage = math.floor(math.max(crash_speed - 5, 0))
+		local crash_dammage = math_floor(math_max(crash_speed - 5, 0))
 		if crash_dammage > 0 then
 			local node = minetest.get_node(pos)
 			if minetest.registered_nodes[node.name].liquidtype == "none" then
@@ -98,13 +114,13 @@ local on_step = function(self, dtime, moveresult)
 		rot.x = rot.x + (-driver:get_look_vertical() - rot.x) * dtime * 2
 		local hor = driver:get_look_horizontal()
 		local angle = hor - rot.y
-		if angle < -math.pi then
-			angle = angle + math.pi * 2
-		elseif angle > math.pi then
-			angle = angle - math.pi * 2
+		if angle < -math_pi then
+			angle = angle + math_pi2
+		elseif angle > math_pi then
+			angle = angle - math_pi2
 		end
 		rot.y = rot.y + angle * dtime * 2
-		speed = speed - math.abs(angle * dtime)
+		speed = speed - math_abs(angle * dtime)
 		rot.z = -angle
 	else
 		local control = driver:get_player_control()
@@ -120,8 +136,8 @@ local on_step = function(self, dtime, moveresult)
 		end
 
 		if rot.z ~= 0 then
-			speed = speed - math.abs(rot.z * dtime)
-			if math.abs(rot.z) < 0.01 then
+			speed = speed - math_abs(rot.z * dtime)
+			if math_abs(rot.z) < 0.01 then
 				rot.z = 0
 			end
 			rot.y = rot.y - rot.z * dtime
@@ -129,19 +145,19 @@ local on_step = function(self, dtime, moveresult)
 		end
 	end
 
-	speed = math.min(math.max((speed - (rot.x ^ 3) * 4 * dtime)
+	speed = math_min(math_max((speed - (rot.x ^ 3) * 4 * dtime)
 		- speed * 0.01 * dtime, 2), 30)
 
 	self.object:set_rotation(rot)
 	local dir = rot_to_dir(rot)
 	local lift = speed * 0.5 * get_pitch_lift(dir.y)
-		* (1 - (math.abs(rot.z / math.pi)))
+		* (1 - (math_abs(rot.z / math_pi)))
 
 	local vertical_acc = lift - 5
-	self.grav_speed = math.min(math.max(self.grav_speed
+	self.grav_speed = math_min(math_max(self.grav_speed
 		+ vertical_acc * dtime, -10), 1)
 
-	dir = vector.new(
+	dir = vector_new(
 		dir.x * speed,
 		dir.y * speed + self.grav_speed,
 		dir.z * speed
@@ -165,7 +181,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 			vel = attach:get_velocity()
 			attach:remove()
 			user:set_detach()
-			user:set_eye_offset(vector.zero(), vector.zero())
+			user:set_eye_offset(vector_zero(), vector_zero())
 			remove_physics_overrides(user)
 			user:add_velocity(vel)
 		end
@@ -179,20 +195,20 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 
 		luaent = ent:get_luaentity()
 		luaent.driver = name
-		local rot = {
-			y = user:get_look_horizontal(),
-			x = -user:get_look_vertical(),
-			z = 0
-		}
+		local rot = vector_new(
+			-user:get_look_vertical(),
+			user:get_look_horizontal(),
+			0
+		)
 		ent:set_rotation(rot)
-		vel = vector.multiply(user:get_velocity(), 2)
+		vel = vector_multiply(user:get_velocity(), 2)
 		ent:set_velocity(vel)
-		luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
-		user:set_attach(ent, "", vector.new(0, 0, -10),
-			vector.new(90, 0, 0))
+		luaent.speed = math_sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
+		user:set_attach(ent, "", vector_new(0, 0, -10),
+			vector_new(90, 0, 0))
 
-		user:set_eye_offset(vector.new(0, -16.25, 0),
-			vector.new(0, -15, 0))
+		user:set_eye_offset(vector_new(0, -16.25, 0),
+			vector_new(0, -15, 0))
 
 		set_physics_overrides(user, { jump = 0, gravity = 0.25 })
 		local color = itemstack:get_meta():get("hangglider_color")
@@ -201,8 +217,8 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 				textures = { "wool_white.png^[multiply:#" .. color }
 			})
 		end
-		if glider_uses > 0 then
-			itemstack:add_wear(65535 / glider_uses)
+		if glider_wear then
+			itemstack:add_wear(glider_wear)
 		end
 		return itemstack
 	end
