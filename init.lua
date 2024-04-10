@@ -32,17 +32,17 @@ local function remove_physics_overrides(player)
 	end
 end
 local function rot_to_dir(rot)
-	local x = -math.cos(rot.x) * math.sin(rot.y)
-	local y = math.sin(rot.x)
-	local z = math.cos(rot.x) * math.cos(rot.y)
-	return { x = x, y = y, z = z }
+	return vector.new(
+		-math.cos(rot.x) * math.sin(rot.y),
+		math.sin(rot.x),
+		math.cos(rot.x) * math.cos(rot.y)
+	)
 end
 
 local function get_pitch_lift(y)
-	local l = -(1964 / 1755 * y * y * y * y)
+	return -(1964 / 1755 * y * y * y * y)
 		- (2549 / 3510 * y * y * y)
 		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
-	return l
 end
 
 
@@ -91,6 +91,7 @@ local on_step = function(self, dtime, moveresult)
 			end
 		end
 		self.object:remove()
+		return
 	end
 
 	if mouse_controls then
@@ -133,18 +134,18 @@ local on_step = function(self, dtime, moveresult)
 
 	self.object:set_rotation(rot)
 	local dir = rot_to_dir(rot)
-	local lift = (speed * 0.5) * get_pitch_lift(dir.y)
+	local lift = speed * 0.5 * get_pitch_lift(dir.y)
 		* (1 - (math.abs(rot.z / math.pi)))
 
 	local vertical_acc = lift - 5
 	self.grav_speed = math.min(math.max(self.grav_speed
 		+ vertical_acc * dtime, -10), 1)
 
-	dir = {
-		x = dir.x * speed,
-		y = dir.y * speed + self.grav_speed,
-		z = dir.z * speed
-	}
+	dir = vector.new(
+		dir.x * speed,
+		dir.y * speed + self.grav_speed,
+		dir.z * speed
+	)
 	self.speed = speed
 	self.object:set_velocity(dir)
 end
@@ -153,6 +154,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 	if type(user) ~= "userdata" then
 		return  -- Real players only
 	end
+
 	local name = user:get_player_name()
 	local pos = user:get_pos()
 	local attach = user:get_attach()
@@ -186,10 +188,12 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 		vel = vector.multiply(user:get_velocity(), 2)
 		ent:set_velocity(vel)
 		luaent.speed = math.sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
-		user:set_attach(ent, "", { x = 0, y = 0, z = -10 },
-			{ x = 90, y = 0, z = 0 })
-		user:set_eye_offset({ x = 0, y = -16.25, z = 0 },
-			{ x = 0, y = -15, z = 0 })
+		user:set_attach(ent, "", vector.new(0, 0, -10),
+			vector.new(90, 0, 0))
+
+		user:set_eye_offset(vector.new(0, -16.25, 0),
+			vector.new(0, -15, 0))
+
 		set_physics_overrides(user, { jump = 0, gravity = 0.25 })
 		local color = itemstack:get_meta():get("hangglider_color")
 		if color then
@@ -242,3 +246,7 @@ minetest.register_on_leaveplayer(function(player)
 	--local name = player:get_player_name()	hanggliding_players[name] = nil	hud_overlay_ids[name] = nil
 	remove_physics_overrides(player)
 end)
+
+print("[glider] loaded with"
+	.. (use_rockets and " " or "out ") .. "rockets.")
+
