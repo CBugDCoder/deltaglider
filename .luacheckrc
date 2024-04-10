@@ -29,4 +29,9 @@ read_globals = {
 			"factorial"
 		}
 	},
-}  
+	unifieddyes = {
+		fields = {
+			"get_color_from_dye_name",
+		}
+	},
+}
