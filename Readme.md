@@ -1,6 +1,7 @@
 # Glider: A Realistic Hang Glider Mod
 
-[![luacheck](https://github.com/SwissalpS/minetest_glider/workflows/luacheck/badge.svg)](https://github.com/SwissalpS/minetest_glider/actions)
+[![luacheck](https://github.com/CBugDCoder/glider/workflows/luacheck/badge.svg)](https://github.com/CBugDCoder/glider/actions)
+[![ContentDB](https://content.minetest.net/packages/CBugDCoder/glider/shields/downloads/)](https://content.minetest.net/packages/CBugDCoder/glider/)
 
 ![Screenshot](screenshot.png)
 
