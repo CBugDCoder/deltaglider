@@ -12,9 +12,21 @@ local math_sqrt = math.sqrt
 local vector_multiply = vector.multiply
 local vector_new = vector.new
 local vector_zero = vector.zero
+-- global table for exposed functions
+glider = {
+	version = 20240410.234315,
+}
+
+local has_areas = minetest.get_modpath("areas")
+local has_hangglider = minetest.get_modpath("hangglider")
 local has_player_monoids = minetest.get_modpath("player_monoids")
 local has_tnt = minetest.get_modpath("tnt")
 
+local enable_flak = has_areas and minetest.settings:get_bool(
+	"glider.enable_flak", true)
+
+local flak_warning_time = tonumber(minetest.settings:get(
+	"glider.flak_warning_time")) or 2
 
 local glider_uses = tonumber(minetest.settings:get(
 	"glider.uses")) or 250
@@ -26,6 +38,36 @@ local use_rockets = has_tnt and minetest.settings:get_bool(
 	"glider.use_rockets", true)
 
 local glider_wear = 0 < glider_uses and (65535 / glider_uses) or nil
+
+local flak_warning = "You have entered restricted airspace!\n"
+	.. "You will be shot down in " .. flak_warning_time
+	.. " seconds by anti-aircraft guns!"
+
+-- only register chatcommand if [hangglider] isn't available
+if enable_flak and not has_hangglider then
+	minetest.register_chatcommand("area_flak", {
+		params = "<ID>",
+		description = "Toggle airspace restrictions for area <ID>",
+		func = function(name, param)
+			local id = tonumber(param)
+			if not id then
+				return false, "Invalid usage, see /help area_flak."
+			end
+
+			if not areas:isAreaOwner(id, name) then
+				return false, "Area " .. id
+					.. " does not exist or is not owned by you."
+			end
+
+			local open = not areas.areas[id].flak
+			-- Save false as nil to avoid inflating the DB.
+			areas.areas[id].flak = open or nil
+			areas:save()
+			return true, "Area " .. id .. " airspace "
+				.. (open and "closed" or "opened")
+		end
+	})
+end
 
 local function set_physics_overrides(player, overrides)
 	if has_player_monoids then
@@ -48,6 +90,44 @@ local function remove_physics_overrides(player)
 		end
 	end
 end
+
+-- expose so other mods can override/hook-into
+function glider.can_fly(pos, name)
+	if not enable_flak then
+		return true
+	end
+
+	local flak = false
+	local owners = {}
+	for _, area in pairs(areas:getAreasAtPos(pos)) do
+		if area.flak then
+			flak = true
+		end
+		owners[area.owner] = true
+	end
+	if flak and not owners[name] then
+		return false
+	end
+
+	return true
+end
+
+local function shoot_flak_sound(pos)
+	minetest.sound_play("glider_flak_shot", {
+		pos = pos,
+		max_hear_distance = 30,
+		gain = 10.0,
+	}, true)
+end
+
+local function equip_sound(pos)
+	minetest.sound_play("glider_equip", {
+		pos = pos,
+		max_hear_distance = 8,
+		gain = 1.0,
+	}, true)
+end
+
 local function rot_to_dir(rot)
 	return vector_new(
 		-math_cos(rot.x) * math_sin(rot.y),
@@ -96,10 +176,6 @@ local on_step = function(self, dtime, moveresult)
 	end
 
 	if land then
-		driver:set_detach()
-		driver:set_eye_offset(vector_zero(), vector_zero())
-		remove_physics_overrides(driver)
-		driver:add_velocity(vel)
 		local crash_dammage = math_floor(math_max(crash_speed - 5, 0))
 		if crash_dammage > 0 then
 			local node = minetest.get_node(pos)
@@ -113,7 +189,31 @@ local on_step = function(self, dtime, moveresult)
 				end --]]
 			end
 		end
+	elseif not glider.can_fly(pos, self.driver) then
+		if not self.flak_timer then
+			self.flak_timer = 0
+			shoot_flak_sound(pos)
+			minetest.chat_send_player(self.driver, flak_warning)
+		else
+			self.flak_timer = self.flak_timer + dtime
+		end
+		if self.flak_timer > flak_warning_time then
+			driver:set_hp(1, {
+				type = "set_hp", cause = "glider:flak"
+			})
+			driver:get_inventory():remove_item("main", ItemStack("glider:glider"))
+			shoot_flak_sound(pos)
+			land = true
+		end
+	end
+
+	if land then
+		driver:set_detach()
+		driver:set_eye_offset(vector_zero(), vector_zero())
+		remove_physics_overrides(driver)
+		driver:add_velocity(vel)
 		self.object:remove()
+		equip_sound(pos)
 		return
 	end
 
@@ -191,6 +291,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 			user:set_eye_offset(vector_zero(), vector_zero())
 			remove_physics_overrides(user)
 			user:add_velocity(vel)
+			equip_sound(pos)
 		end
 	else
 		pos.y = pos.y + 1.5
@@ -227,6 +328,7 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 		if glider_wear then
 			itemstack:add_wear(glider_wear)
 		end
+		equip_sound(pos)
 		return itemstack
 	end
 end

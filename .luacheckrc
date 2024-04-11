@@ -1,3 +1,8 @@
+globals = {
+	"areas",
+	"glider",
+}
+
 read_globals = {
 	"dump", "dump2",
 	"ItemStack",
@@ -14,6 +19,7 @@ read_globals = {
 		}
 	},
 	"minetest", "core",
+	"player_monoids",
 	unifieddyes = {
 		fields = {
 			"get_color_from_dye_name",
@@ -22,6 +28,7 @@ read_globals = {
 	vector = {
 		fields = {
 			"multiply",
+			"new",
 			"zero",
 		}
 	},
