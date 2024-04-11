@@ -92,7 +92,16 @@ local function remove_physics_overrides(player)
 end
 
 -- expose so other mods can override/hook-into
-function glider.can_fly(pos, name)
+-- to disallow flying in certain areas or materials
+-- such as on the moon or without priv in certain area
+-- pos: (vector) position of player
+-- name: (string) player's name
+-- in_flight: (bool) is already airborne
+function glider.allowed_to_fly(pos, name, in_flight) --luacheck: no unused args
+	return true
+end
+
+local function friendly_airspace(pos, name)
 	if not enable_flak then
 		return true
 	end
@@ -189,7 +198,7 @@ local on_step = function(self, dtime, moveresult)
 				end --]]
 			end
 		end
-	elseif not glider.can_fly(pos, self.driver) then
+	elseif not friendly_airspace(pos, self.driver) then
 		if not self.flak_timer then
 			self.flak_timer = 0
 			shoot_flak_sound(pos)
@@ -205,6 +214,8 @@ local on_step = function(self, dtime, moveresult)
 			shoot_flak_sound(pos)
 			land = true
 		end
+	elseif not glider.allowed_to_fly(pos, self.driver, true) then
+		land = true
 	end
 
 	if land then
@@ -294,6 +305,10 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			equip_sound(pos)
 		end
 	else
+		if not glider.allowed_to_fly(pos, name, false) then
+			return
+		end
+
 		pos.y = pos.y + 1.5
 		local ent = minetest.add_entity(pos, "glider:hangglider")
 		if not ent then
