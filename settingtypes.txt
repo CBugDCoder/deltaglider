@@ -5,3 +5,6 @@ glider.mouse_controls (Mouse Controls) bool true
 # The number of times the glider can be used before breaking. Set to 0 for infinite uses.
 glider.uses (Glider uses) int 250
 
+# Use rockets to boost speed (requires [tnt])
+glider.use_rockets (Enable rocket boosters) bool true
+

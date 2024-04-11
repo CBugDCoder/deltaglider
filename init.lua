@@ -13,6 +13,7 @@ local vector_multiply = vector.multiply
 local vector_new = vector.new
 local vector_zero = vector.zero
 local has_player_monoids = minetest.get_modpath("player_monoids")
+local has_tnt = minetest.get_modpath("tnt")
 
 
 local glider_uses = tonumber(minetest.settings:get(
@@ -21,7 +22,7 @@ local glider_uses = tonumber(minetest.settings:get(
 local mouse_controls = minetest.settings:get_bool(
 	"glider.mouse_controls", true)
 
-local use_rockets = minetest.settings:get_bool(
+local use_rockets = has_tnt and minetest.settings:get_bool(
 	"glider.use_rockets", true)
 
 local glider_wear = 0 < glider_uses and (65535 / glider_uses) or nil
