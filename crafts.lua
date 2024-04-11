@@ -1,5 +1,10 @@
 
+local has_basic_materials = minetest.get_modpath("basic_materials")
+local has_farming = minetest.get_modpath("farming")
+local has_pipeworks = minetest.get_modpath("pipeworks")
+local has_ropes = minetest.get_modpath("ropes")
 local has_unifieddyes = minetest.get_modpath("unifieddyes")
+local has_wool = minetest.get_modpath("wool")
 
 local dye_colors = {
 	white      = "ffffff",
@@ -107,20 +112,43 @@ minetest.register_craft({
 		{ "default:paper", "default:paper", "default:paper" },
 	},
 })
-minetest.register_craft({
-	output = "glider:glider",
-	recipe = {
-		{ "glider:glider", "wool:white" },
-	},
-})
+if has_wool then
+	minetest.register_craft({
+		output = "glider:glider",
+		recipe = {
+			{ "glider:glider", "wool:white" },
+		},
+	})
+end
 
 -- Main craft
+local fabric = "default:paper"
+local stick = "group:stick"
+local string = ""
+if has_wool then
+	fabric = "wool:white"
+end
+if has_farming then
+	string = "farming:string"
+end
+if has_ropes then
+	string = "ropes:ropesegment"
+end
+if has_basic_materials then
+	fabric = "basic_materials:plastic_sheet"
+	string = "basic_materials:steel_wire"
+	stick = "basic_materials:steel_strip"
+end
+if has_pipeworks then
+	stick = "pipeworks:tube_1"
+end
+
 minetest.register_craft({
 	output = "glider:glider",
 	recipe = {
-		{ "wool:white", "wool:white", "wool:white" },
-		{ "default:stick", "", "default:stick" },
-		{ "", "default:stick", "" },
+		{ string, fabric, string },
+		{ fabric, fabric, fabric },
+		{ stick, stick, stick },
 	}
 })
 
