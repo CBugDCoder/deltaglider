@@ -12,6 +12,7 @@ local math_sqrt = math.sqrt
 local vector_multiply = vector.multiply
 local vector_new = vector.new
 local vector_zero = vector.zero
+
 -- global table for exposed functions
 glider = {
 	version = 20240410.234315,
@@ -239,7 +240,9 @@ local on_step = function(self, dtime, moveresult)
 			driver:set_hp(1, {
 				type = "set_hp", cause = "glider:flak"
 			})
-			driver:get_inventory():remove_item("main", ItemStack("glider:glider"))
+			driver:get_inventory():remove_item(
+				"main", ItemStack("glider:glider"))
+
 			shoot_flak_sound(pos)
 			land = true
 		end
@@ -409,12 +412,10 @@ if use_rockets then
 end
 
 minetest.register_on_dieplayer(function(player)
-	--local name = player:get_player_name() hanggliding_players[name] = nil
 	remove_physics_overrides(player)
 end)
 
 minetest.register_on_leaveplayer(function(player)
-	--local name = player:get_player_name()	hanggliding_players[name] = nil	hud_overlay_ids[name] = nil
 	remove_physics_overrides(player)
 end)
 
