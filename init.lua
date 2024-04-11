@@ -273,24 +273,24 @@ local on_step = function(self, dtime, moveresult)
 	self.object:set_velocity(dir)
 end
 
-local on_use = function(itemstack, user, pt) --luacheck: no unused args
-	if type(user) ~= "userdata" then
+local on_use = function(itemstack, driver, pt) --luacheck: no unused args
+	if type(driver) ~= "userdata" then
 		return  -- Real players only
 	end
 
-	local name = user:get_player_name()
-	local pos = user:get_pos()
-	local attach = user:get_attach()
+	local name = driver:get_player_name()
+	local pos = driver:get_pos()
+	local attach = driver:get_attach()
 	local luaent, vel
 	if attach then
 		luaent = attach:get_luaentity()
 		if luaent.name == "glider:hangglider" then
 			vel = attach:get_velocity()
 			attach:remove()
-			user:set_detach()
-			user:set_eye_offset(vector_zero(), vector_zero())
-			remove_physics_overrides(user)
-			user:add_velocity(vel)
+			driver:set_detach()
+			driver:set_eye_offset(vector_zero(), vector_zero())
+			remove_physics_overrides(driver)
+			driver:add_velocity(vel)
 			equip_sound(pos)
 		end
 	else
@@ -304,21 +304,21 @@ local on_use = function(itemstack, user, pt) --luacheck: no unused args
 		luaent = ent:get_luaentity()
 		luaent.driver = name
 		local rot = vector_new(
-			-user:get_look_vertical(),
-			user:get_look_horizontal(),
+			-driver:get_look_vertical(),
+			driver:get_look_horizontal(),
 			0
 		)
 		ent:set_rotation(rot)
-		vel = vector_multiply(user:get_velocity(), 2)
+		vel = vector_multiply(driver:get_velocity(), 2)
 		ent:set_velocity(vel)
 		luaent.speed = math_sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
-		user:set_attach(ent, "", vector_new(0, 0, -10),
+		driver:set_attach(ent, "", vector_new(0, 0, -10),
 			vector_new(90, 0, 0))
 
-		user:set_eye_offset(vector_new(0, -16.25, 0),
+		driver:set_eye_offset(vector_new(0, -16.25, 0),
 			vector_new(0, -15, 0))
 
-		set_physics_overrides(user, { jump = 0, gravity = 0.25 })
+		set_physics_overrides(driver, { jump = 0, gravity = 0.25 })
 		local color = itemstack:get_meta():get("hangglider_color")
 		if color then
 			ent:set_properties({
