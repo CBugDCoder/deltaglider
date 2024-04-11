@@ -107,9 +107,9 @@ local on_step = function(self, dtime, moveresult)
 				local hp = driver:get_hp()
 				driver:set_hp(hp - crash_dammage, { type = "fall" })
 				-- also damage glider
-				if glider_wear then
+				--[[if glider_wear then
 					itemstack:add_wear(glider_wear)
-				end
+				end --]]
 			end
 		end
 		self.object:remove()
