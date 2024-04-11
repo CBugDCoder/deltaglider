@@ -102,8 +102,13 @@ local on_step = function(self, dtime, moveresult)
 		if crash_dammage > 0 then
 			local node = minetest.get_node(pos)
 			if minetest.registered_nodes[node.name].liquidtype == "none" then
+				-- hurt player
 				local hp = driver:get_hp()
 				driver:set_hp(hp - crash_dammage, { type = "fall" })
+				-- also damage glider
+				if glider_wear then
+					itemstack:add_wear(glider_wear)
+				end
 			end
 		end
 		self.object:remove()
