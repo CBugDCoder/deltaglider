@@ -151,6 +151,37 @@ local function get_pitch_lift(y)
 		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
 end
 
+local wear_hp_factor = 65535 * 0.0375 -- 3/80 == 1/20*.75
+local function damage_glider(driver, luaent, crash_damage)
+	if not glider_wear then
+		return
+	end
+
+	local index = luaent.wield_index
+	local inv = driver:get_inventory()
+	local stack = inv:get_stack("main", index)
+	if stack:to_string() ~= luaent.tool_string then
+		local index_alt
+		index, stack = nil, nil
+		for i, is in ipairs(inv:get_list("main")) do
+			if is:get_name() == "glider:glider" then
+				index_alt = i
+			end
+			if is:to_string() == luaent.tool_string then
+				index = i
+				break
+			end
+		end
+		index = index or index_alt
+		if index then
+			stack = inv:get_stack("main", index)
+		end
+	end
+	if stack then
+		stack:add_wear(crash_damage * wear_hp_factor)
+		inv:set_stack("main", index, stack)
+	end
+end
 
 local on_step = function(self, dtime, moveresult)
 	local driver = minetest.get_player_by_name(self.driver)
@@ -189,12 +220,10 @@ local on_step = function(self, dtime, moveresult)
 		if crash_damage > 0 then
 			local node = minetest.get_node(pos)
 			if minetest.registered_nodes[node.name].liquidtype == "none" then
+				-- damage glider first
+				damage_glider(driver, self, crash_damage)
 				-- hurt player
 				local hp = driver:get_hp()
-				-- also damage glider
-				--[[if glider_wear then
-					itemstack:add_wear(glider_wear)
-				end --]]
 				driver:set_hp(hp - crash_damage, { type = "fall" })
 			end
 		end
@@ -342,6 +371,8 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 		end
 		if glider_wear then
 			itemstack:add_wear(glider_wear)
+			luaent.wield_index = driver:get_wield_index()
+			luaent.tool_string = itemstack:to_string()
 		end
 		equip_sound(pos)
 		return itemstack
