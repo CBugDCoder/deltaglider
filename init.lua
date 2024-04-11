@@ -67,6 +67,7 @@ local on_step = function(self, dtime, moveresult)
 	local driver = minetest.get_player_by_name(self.driver)
 	if not driver then
 		-- driver logged off
+		self.object:remove()
 		return
 	end
 
