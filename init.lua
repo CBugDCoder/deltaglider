@@ -83,13 +83,13 @@ local on_step = function(self, dtime, moveresult)
 	if moveresult and moveresult.collisions and moveresult.collides then
 		for _ ,collision in pairs(moveresult.collisions) do
 			land = true
-			crash_speed = crash_speed
-				+ math_abs(collision.old_velocity.x
-					- collision.new_velocity.x)
-				+ math_abs(collision.old_velocity.y
-					- collision.new_velocity.y)
-				+ math_abs(collision.old_velocity.z
-					- collision.new_velocity.z)
+			crash_speed = math_abs(crash_speed
+				+ collision.old_velocity.x
+				- collision.new_velocity.x
+				+ collision.old_velocity.y
+				- collision.new_velocity.y
+				+ collision.old_velocity.z
+				- collision.new_velocity.z)
 		end
 	end
 
