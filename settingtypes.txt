@@ -1,6 +1,14 @@
-# When enabled the player will control the glider via looking around.
-# When disabled the player will control the glider via the movement keys.
+# Allow players to use mouse to control glider by looking around.
+# Note: if disabled make sure keyboard_controls are enabled.
+#   If both are enabled, players can toggle by placing with glider
+#   in hand (right-click).
 glider.mouse_controls (Mouse controls) bool true
+
+# Allow players to use keyboard to control the glider.
+# Note: if disabled make sure mouse_controls are enabled.
+#   If both are enabled, players can toggle by placing with glider
+#   in hand (right-click).
+glider.keyboard_controls (Keyboard controls) bool true
 
 # The number of times the glider can be used before breaking. Set to 0 for infinite uses.
 glider.uses (Glider uses) int 250

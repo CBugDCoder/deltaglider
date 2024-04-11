@@ -36,6 +36,12 @@ local glider_uses = tonumber(minetest.settings:get(
 local mouse_controls = minetest.settings:get_bool(
 	"glider.mouse_controls", true)
 
+local keyboard_controls = minetest.settings:get_bool(
+	"glider.keyboard_controls", true)
+
+assert(mouse_controls or keyboard_controls,
+	"Neither mouse nor keyboard controls enabled.")
+
 local use_rockets = has_tnt and minetest.settings:get_bool(
 	"glider.use_rockets", true)
 
@@ -142,6 +148,16 @@ local function equip_sound(pos)
 		max_hear_distance = 8,
 		gain = 1.0,
 	}, true)
+end
+
+local function player_controls(driver)
+	local meta = driver:get_meta()
+	local inverted = 1 == meta:get_int("glider.inv")
+	if mouse_controls and keyboard_controls then
+		return 0 == meta:get_int("glider.keyC"), inverted
+	else
+		return mouse_controls, inverted
+	end
 end
 
 local function rot_to_dir(rot)
@@ -280,15 +296,32 @@ local on_step = function(self, dtime, moveresult)
 		rot.z = -angle
 	else
 		local control = driver:get_player_control()
-		if control.up and not control.down then
-			rot.x = rot.x + dtime
-		elseif control.down and not control.up then
-			rot.x = rot.x - dtime
+		-- ignore if both directions are pressed
+		if control.up or control.down then
+			if inverted then
+				-- inverted controls
+				if control.up then
+					rot.x = rot.x + dtime
+				elseif control.down then
+					rot.x = rot.x - dtime
+				end
+			else
+				-- standard pilot controls: forward pushes
+				-- nose down, back pulls up
+				if control.up then
+					rot.x = rot.x - dtime
+				elseif control.down then
+					rot.x = rot.x + dtime
+				end
+			end
 		end
-		if control.left and not control.right then
-			rot.z = rot.z - 2 * dtime
-		elseif control.right and not control.left then
-			rot.z = rot.z + 2 * dtime
+		-- ignore if both directions are pressed
+		if control.left or control.right then
+			if control.left then
+				rot.z = rot.z - 2 * dtime
+			elseif control.right then
+				rot.z = rot.z + 2 * dtime
+			end
 		end
 
 		if rot.z ~= 0 then
@@ -388,6 +421,39 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 	end
 end
 
+local function on_place(_, driver)
+	if type(driver) ~= "userdata" then
+		return  -- Real players only
+	end
+
+	local meta = driver:get_meta()
+	local control = driver:get_player_control()
+
+	if control.aux1 and control.sneak then
+		-- change inverted up/down
+		-- read and toggle in one line
+		local inverted = 0 == meta:get_int("glider.inv")
+		meta:set_int("glider.inv", inverted and 1 or 0)
+
+		minetest.chat_send_player(driver:get_player_name(),
+			inverted
+				and "Inverted up/down activated (novice)."
+				or "Normal up/down activated (pro pilot).")
+
+	elseif mouse_controls and keyboard_controls
+		and control.sneak
+	then
+		-- toggle mouse/keyboard control
+		-- read and toggle in one line
+		local key_c = 0 == meta:get_int("glider.keyC")
+		meta:set_int("glider.keyC", key_c and 1 or 0)
+
+		minetest.chat_send_player(driver:get_player_name(),
+			key_c
+				and "Keyboard controls activated."
+				or "Mouse controls activated.")
+	end
+end
 
 minetest.register_entity("glider:hangglider", {
 	physical = true,
@@ -409,6 +475,7 @@ minetest.register_tool("glider:glider", {
 	description = "Delta Glider",
 	inventory_image = "glider_glider.png",
 	on_use = on_use,
+	on_secondary_use = on_place,
 })
 
 local mp = minetest.get_modpath("glider")
