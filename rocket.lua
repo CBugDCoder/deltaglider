@@ -26,12 +26,16 @@ minetest.register_craftitem("glider:rocket", {
 	end
 })
 
+local gunpowder = minetest.get_modpath("mcl_mobitems")
+	and "mcl_mobitems:gunpowder"
+	or "tnt:gunpowder"
+
 minetest.register_craft({
 	output = "glider:rocket 33",
 	recipe = {
-		{ "group:wood", "tnt:gunpowder", "group:wood" },
-		{ "group:wood", "tnt:gunpowder", "group:wood" },
-		{ "group:wood", "tnt:gunpowder", "group:wood" },
+		{ "group:wood", gunpowder, "group:wood" },
+		{ "group:wood", gunpowder, "group:wood" },
+		{ "group:wood", gunpowder, "group:wood" },
 	}
 })
 

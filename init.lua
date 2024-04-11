@@ -22,6 +22,7 @@ local has_areas = minetest.get_modpath("areas")
 local has_hangglider = minetest.get_modpath("hangglider")
 local has_player_monoids = minetest.get_modpath("player_monoids")
 local has_tnt = minetest.get_modpath("tnt")
+	or minetest.get_modpath("mcl_mobitems")
 
 local enable_flak = has_areas and minetest.settings:get_bool(
 	"glider.enable_flak", true)
