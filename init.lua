@@ -39,8 +39,8 @@ local mouse_controls = minetest.settings:get_bool(
 local use_rockets = has_tnt and minetest.settings:get_bool(
 	"glider.use_rockets", true)
 
-local rocket_delay = math.min(65000, math.max(1,
-	tonumber(minetest.settings.get("glider.rocket_delay") or 10)))
+local rocket_delay = math_min(65000, math_max(1,
+	tonumber(minetest.settings:get("glider.rocket_delay") or 10)))
 
 glider.rocket_delay = rocket_delay
 
