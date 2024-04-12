@@ -33,6 +33,10 @@ local flak_warning_time = tonumber(minetest.settings:get(
 local glider_uses = tonumber(minetest.settings:get(
 	"glider.uses")) or 250
 
+local crash_damage_wear_factor = tonumber(
+	minetest.settings:get("glider.crash_damage_wear_factor"))
+	or 2457.5625
+
 local mouse_controls = minetest.settings:get_bool(
 	"glider.mouse_controls", true)
 
@@ -174,7 +178,6 @@ local function get_pitch_lift(y)
 		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
 end
 
-local wear_hp_factor = 65535 * 0.0375 -- 3/80 == 1/20*.75
 local function damage_glider(driver, luaent, crash_damage)
 	if not glider_wear then
 		return
@@ -201,7 +204,7 @@ local function damage_glider(driver, luaent, crash_damage)
 		end
 	end
 	if stack then
-		stack:add_wear(crash_damage * wear_hp_factor)
+		stack:add_wear(crash_damage * crash_damage_wear_factor)
 		inv:set_stack("main", index, stack)
 	end
 end
