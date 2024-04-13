@@ -393,8 +393,14 @@ local on_step = function(self, dtime, moveresult)
 		return
 	end
 
-	if mouse_controls then
-		rot.x = rot.x + (-driver:get_look_vertical() - rot.x) * dtime * 2
+	local mouse, inverted = player_controls(driver)
+	if mouse then
+		local ver = driver:get_look_vertical()
+		if inverted then
+			rot.x = rot.x + (-ver - rot.x) * dtime * 2
+		else
+			rot.x = rot.x + (ver - rot.x) * dtime * 2
+		end
 		local hor = driver:get_look_horizontal()
 		local angle = hor - rot.y
 		if angle < -math_pi then
