@@ -59,6 +59,12 @@ glider.rocket_cooldown = rocket_cooldown
 
 local glider_wear = 0 < glider_uses and (65535 / glider_uses) or nil
 
+glider.allow_hangglider_while_gliding = minetest.settings:get_bool(
+	"glider.allow_hangglider_while_gliding", true)
+
+glider.allow_while_hanggliding = minetest.settings:get_bool(
+	"glider.allow_while_hanggliding", false)
+
 local flak_warning = "You have entered restricted airspace!\n"
 	.. "You will be shot down in " .. flak_warning_time
 	.. " seconds by anti-aircraft guns!"
@@ -299,6 +305,22 @@ local on_step = function(self, dtime, moveresult)
 		-- driver died
 		self.object:remove()
 		return
+	elseif not glider.allow_hangglider_while_gliding then
+		local luaent
+		for _, obj in ipairs(driver:get_children()) do
+			luaent = obj:get_luaentity()
+			if luaent and luaent.name == "hangglider:glider" then
+				damage_glider(driver, self, 2)
+				driver:set_detach()
+				driver:set_eye_offset(vector_zero(), vector_zero())
+				remove_physics_overrides(driver)
+				driver:add_velocity(self.object:get_velocity())
+				update_hud(self.driver, driver)
+				self.object:remove()
+				return
+			end
+		end
+		--luaent = nil
 	end
 
 	self.time_from_last_rocket = math_min(
@@ -468,6 +490,15 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			update_hud(name, driver)
 		end
 	else
+		if not glider.allow_while_hanggliding then
+			for _, obj in ipairs(driver:get_children()) do
+				luaent = obj:get_luaentity()
+				if luaent and luaent.name == "hangglider:glider" then
+					return
+				end
+			end
+		end
+
 		local grounded, damage = custom_grounded_checks(name, driver)
 		if grounded then
 			if 0 ~= damage then

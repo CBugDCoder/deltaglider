@@ -36,3 +36,15 @@ glider.enable_flak (Enable flak) bool true
 
 # Time in seconds before gliders get shot down when flying in restricted airspace.
 glider.flak_warning_time (Flak warning time) float 2
+
+# Allow the use of [hangglider] while using this glider.
+# E.g. as a landing helper or damage prevention measure.
+# Disabling this causes server load as the checks are done
+# on every glider on_step.
+# Also disabling this won't prevent users from hot-switching to [hangglider].
+# Some damage will be applied to glider though.
+glider.allow_hangglider_while_gliding (Permit [hangglider] in flight) bool true
+
+# Allow the use of this glider while using [hangglider].
+# This is a bit weird, so default is false.
+glider.allow_while_hanggliding (Permit [glider] while [hangglider is used]) bool false
