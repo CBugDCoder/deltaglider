@@ -206,6 +206,46 @@ local function rot_to_dir(rot)
 	)
 end
 
+local huds = {}
+local rad2deg = 180 / math_pi
+local function update_hud(name, driver, dir, rocket_time, speed)
+	local info = ""
+	if dir then
+		-- glider in use
+		local pitch = math_floor((
+			-10 * driver:get_look_vertical() * rad2deg) + 0.5) * 0.1
+
+		local heading = math_floor((
+			10 * driver:get_look_horizontal() * rad2deg) + 0.5) * 0.1
+
+		local sign = 0 == dir.y and "=" or (0 < dir.y and "+" or "-")
+		info = "pitch: " .. pitch .. "°"
+			.. " heading: " .. heading .. "°"
+			.. "\n"
+			.. " vV: " .. sign .. math_floor(math_abs(dir.y) + 0.5)
+			.. " alt: " .. math_floor(driver:get_pos().y)
+			.. " v: " .. math_floor(speed + 0.5)
+			.. (0 < rocket_time
+				and ("\n" .. math_floor(rocket_time + 0.5)) or "")
+	end
+
+	if huds[name] then
+		driver:hud_change(huds[name], "text", info)
+		return
+	end
+
+	huds[name] = driver:hud_add({
+		hud_elem_type = "text",
+		position  = {x = 0.5, y = 0.8},
+		offset    = {x = 0, y = 0},
+		text      = info,
+		alignment = 0,
+		scale     = { x = 300, y = 90},
+		--size      = { x = 100, y = 100},
+		number    = 0xFFFFFF,
+	})
+end
+
 local function get_pitch_lift(y)
 	return -(1964 / 1755 * y * y * y * y)
 		- (2549 / 3510 * y * y * y)
@@ -321,6 +361,7 @@ local on_step = function(self, dtime, moveresult)
 		driver:add_velocity(vel)
 		self.object:remove()
 		equip_sound(pos)
+		update_hud(self.driver, driver)
 		return
 	end
 
@@ -394,6 +435,8 @@ local on_step = function(self, dtime, moveresult)
 		dir.z * speed
 	)
 	self.speed = speed
+	update_hud(self.driver, driver, dir,
+		rocket_cooldown - self.time_from_last_rocket, speed)
 	self.object:set_velocity(dir)
 end
 
@@ -416,6 +459,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			remove_physics_overrides(driver)
 			driver:add_velocity(vel)
 			equip_sound(pos)
+			update_hud(name, driver)
 		end
 	else
 		local grounded, damage = custom_grounded_checks(name, driver)
@@ -533,10 +577,12 @@ end
 
 minetest.register_on_dieplayer(function(player)
 	remove_physics_overrides(player)
+	update_hud(player:get_player_name(), player)
 end)
 
 minetest.register_on_leaveplayer(function(player)
 	remove_physics_overrides(player)
+	huds[player:get_player_name()] = nil
 end)
 
 print("[glider] loaded with"
