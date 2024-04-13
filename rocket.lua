@@ -1,4 +1,4 @@
-local rocket_delay = glider.rocket_delay
+local rocket_cooldown = glider.rocket_cooldown
 
 minetest.register_craftitem("glider:rocket", {
 	description = "Rocket (Use while gliding to boost delta glider speed)",
@@ -15,7 +15,7 @@ minetest.register_craftitem("glider:rocket", {
 		end
 
 		-- Avoid rocket overuse. This also throttles max speed.
-		if rocket_delay > luaent.time_from_last_rocket then
+		if rocket_cooldown > luaent.time_from_last_rocket then
 			return itemstack
 		end
 

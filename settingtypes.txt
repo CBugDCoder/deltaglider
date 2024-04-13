@@ -26,7 +26,7 @@ glider.crash_damage_wear_factor (Crashing damages glider factor) float 2457.5625
 glider.use_rockets (Enable rocket boosters) bool true
 
 # Delay between rocket uses.
-glider.rocket_delay (Rocket delay) int 10 1 65000
+glider.rocket_cooldown (Rocket cooldown delay) int 10 1 65000
 
 # If enabled, and the `areas` mod is installed, enables airspace restrictions to be added to areas.
 glider.enable_flak (Enable flak) bool true

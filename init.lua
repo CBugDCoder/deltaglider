@@ -49,10 +49,10 @@ assert(mouse_controls or keyboard_controls,
 local use_rockets = has_tnt and minetest.settings:get_bool(
 	"glider.use_rockets", true)
 
-local rocket_delay = math_min(65000, math_max(1,
-	tonumber(minetest.settings:get("glider.rocket_delay") or 10)))
+local rocket_cooldown = math_min(65000, math_max(1,
+	tonumber(minetest.settings:get("glider.rocket_cooldown")) or 10))
 
-glider.rocket_delay = rocket_delay
+glider.rocket_cooldown = rocket_cooldown
 
 local glider_wear = 0 < glider_uses and (65535 / glider_uses) or nil
 
@@ -218,7 +218,7 @@ local on_step = function(self, dtime, moveresult)
 	end
 
 	self.time_from_last_rocket = math_min(
-		self.time_from_last_rocket + dtime, rocket_delay)
+		self.time_from_last_rocket + dtime, rocket_cooldown)
 
 	local vel = self.object:get_velocity()
 	local speed = self.speed
@@ -471,7 +471,7 @@ minetest.register_entity("glider:hangglider", {
 	driver = "",
 	free_fall = false,
 	speed = 0,
-	time_from_last_rocket = rocket_delay,
+	time_from_last_rocket = rocket_cooldown,
 })
 
 minetest.register_tool("glider:glider", {
