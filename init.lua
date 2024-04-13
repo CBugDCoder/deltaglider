@@ -298,9 +298,8 @@ local on_step = function(self, dtime, moveresult)
 			driver:set_hp(1, {
 				type = "set_hp", cause = "glider:flak"
 			})
-			driver:get_inventory():remove_item(
-				"main", ItemStack("glider:glider"))
-
+			-- destroy glider
+			damage_glider(driver, self, 20)
 			shoot_flak_sound(pos)
 			land = true
 		end
