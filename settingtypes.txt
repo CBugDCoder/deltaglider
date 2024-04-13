@@ -11,7 +11,7 @@ glider.mouse_controls (Mouse controls) bool true
 glider.keyboard_controls (Keyboard controls) bool true
 
 # The number of times the glider can be used before breaking. Set to 0 for infinite uses.
-glider.uses (Glider uses) int 250
+glider.uses (Glider uses) int 250 0 65535
 
 # Factor that is multiplied with the hp-based crash damage to
 # add wear to glider upon crashing. Depending on craft recipe
@@ -21,6 +21,9 @@ glider.uses (Glider uses) int 250
 # The default value damages glider 3/4 the amount of what
 # player suffers.
 glider.crash_damage_wear_factor (Crashing damages glider factor) float 2457.5625 0 65535
+
+# Maximum speed of gliders. (Per axis, thus actual speed may be greater.)
+glider.max_speed (Maximum speed) int 30 2 65535
 
 # Use rockets to boost speed (requires [tnt] or [mcl_mobitems]).
 glider.use_rockets (Enable rocket boosters) bool true

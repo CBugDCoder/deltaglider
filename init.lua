@@ -37,6 +37,9 @@ local crash_damage_wear_factor = tonumber(
 	minetest.settings:get("glider.crash_damage_wear_factor"))
 	or 2457.5625
 
+local max_speed = math_max(2, math_min(65535, tonumber(
+	minetest.settings:get("glider.max_speed")) or 30))
+
 local mouse_controls = minetest.settings:get_bool(
 	"glider.mouse_controls", true)
 
@@ -373,8 +376,8 @@ local on_step = function(self, dtime, moveresult)
 		end
 	end
 
-	speed = math_min(math_max((speed - (rot.x ^ 3) * 4 * dtime)
-		- speed * 0.01 * dtime, 2), 30)
+	speed = math_min(max_speed, math_max(2,
+		(speed - (rot.x ^ 3) * 4 * dtime) - speed * 0.01 * dtime))
 
 	self.object:set_rotation(rot)
 	local dir = rot_to_dir(rot)
