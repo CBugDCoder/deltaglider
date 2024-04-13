@@ -108,14 +108,45 @@ local function remove_physics_overrides(player)
 	end
 end
 
--- expose so other mods can override/hook-into
+-- Allow other mods to register custom flight checks
 -- to disallow flying in certain areas or materials
 -- such as on the moon or without priv in certain area
--- pos: (vector) position of player
+-- The function's signature is: (name, driver, luaent)
 -- name: (string) player's name
--- in_flight: (bool) is already airborne
-function glider.allowed_to_fly(pos, name, in_flight) --luacheck: no unused args
-	return true
+-- driver: (PlayerObjRef) the player object
+-- luaent: (nil or luaentity) the glider luaentity. When set,
+--   player is already flying. When not, player would like to
+--   take off.
+-- The function *must* return true to indicate that player may
+-- *not* fly. A second return value of int may be provided to
+-- indicate damage to player from which damage to glider
+-- is also applied. Sensible values are from -20 to 20.
+-- Negative meaning healing.
+local grounded_checks = {}
+function glider.register_grounded_check(func)
+	grounded_checks[#grounded_checks + 1] = func
+end
+
+local function custom_grounded_checks(name, driver, luaent)
+	local is_grounded = false
+	local damage = 0
+	local i = #grounded_checks
+	if i == 0 then
+		return is_grounded, damage
+	end
+
+	local res_bool, res_int
+	repeat
+		res_bool, res_int = grounded_checks[i](name, driver, luaent)
+		if res_bool then
+			is_grounded = true
+		end
+		if type(res_int) == "number" then
+			damage = damage + math_max(-20, math_min(20, res_int))
+		end
+		i = i - 1
+	until i == 0
+	return is_grounded, damage
 end
 
 local function friendly_airspace(pos, name)
@@ -231,7 +262,7 @@ local on_step = function(self, dtime, moveresult)
 
 	-- Check surroundings
 	local land = false
-	local crash_speed = 0
+	local crash_speed, crash_damage = 0
 	if moveresult and moveresult.collisions and moveresult.collides then
 		for _ ,collision in pairs(moveresult.collisions) do
 			land = true
@@ -246,7 +277,7 @@ local on_step = function(self, dtime, moveresult)
 	end
 
 	if land then
-		local crash_damage = math_floor(math_max(crash_speed - 5, 0))
+		crash_damage = math_floor(math_max(crash_speed - 5, 0))
 		if crash_damage > 0 then
 			local node = minetest.get_node(pos)
 			if minetest.registered_nodes[node.name].liquidtype == "none" then
@@ -273,8 +304,12 @@ local on_step = function(self, dtime, moveresult)
 			shoot_flak_sound(pos)
 			land = true
 		end
-	elseif not glider.allowed_to_fly(pos, self.driver, true) then
-		land = true
+	else
+		land, crash_damage = custom_grounded_checks(self.driver, driver, self)
+		if 0 ~= crash_damage then
+			damage_glider(driver, self, crash_damage)
+			damage_driver(driver, crash_damage)
+		end
 	end
 
 	if land then
@@ -381,8 +416,13 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			equip_sound(pos)
 		end
 	else
-		if not glider.allowed_to_fly(pos, name, false) then
-			return
+		local grounded, damage = custom_grounded_checks(name, driver)
+		if grounded then
+			if 0 ~= damage then
+				itemstack:add_wear(damage * crash_damage_wear_factor)
+				damage_driver(driver, damage)
+			end
+			return itemstack
 		end
 
 		pos.y = pos.y + 1.5
