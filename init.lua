@@ -295,6 +295,12 @@ local on_step = function(self, dtime, moveresult)
 		return
 	end
 
+	if not driver:get_attach() then
+		-- driver died
+		self.object:remove()
+		return
+	end
+
 	self.time_from_last_rocket = math_min(
 		self.time_from_last_rocket + dtime, rocket_cooldown)
 
