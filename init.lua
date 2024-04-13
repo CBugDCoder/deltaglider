@@ -378,31 +378,31 @@ local on_step = function(self, dtime, moveresult)
 		speed = speed - math_abs(angle * dtime)
 		rot.z = -angle
 	else
-		local control = driver:get_player_control()
+		local keys = driver:get_player_control()
 		-- ignore if both directions are pressed
-		if control.up or control.down then
+		if keys.up or keys.down then
 			if inverted then
 				-- inverted controls
-				if control.up then
+				if keys.up then
 					rot.x = rot.x + dtime
-				elseif control.down then
+				elseif keys.down then
 					rot.x = rot.x - dtime
 				end
 			else
 				-- standard pilot controls: forward pushes
 				-- nose down, back pulls up
-				if control.up then
+				if keys.up then
 					rot.x = rot.x - dtime
-				elseif control.down then
+				elseif keys.down then
 					rot.x = rot.x + dtime
 				end
 			end
 		end
 		-- ignore if both directions are pressed
-		if control.left or control.right then
-			if control.left then
+		if keys.left or keys.right then
+			if keys.left then
 				rot.z = rot.z - 2 * dtime
-			elseif control.right then
+			elseif keys.right then
 				rot.z = rot.z + 2 * dtime
 			end
 		end
@@ -518,9 +518,9 @@ local function on_place(_, driver)
 	end
 
 	local meta = driver:get_meta()
-	local control = driver:get_player_control()
+	local keys = driver:get_player_control()
 
-	if control.aux1 and control.sneak then
+	if keys.aux1 and keys.sneak then
 		-- change inverted up/down
 		-- read and toggle in one line
 		local inverted = 0 == meta:get_int("glider.inv")
@@ -532,7 +532,7 @@ local function on_place(_, driver)
 				or "Normal up/down activated (pro pilot).")
 
 	elseif mouse_controls and keyboard_controls
-		and control.sneak
+		and keys.sneak
 	then
 		-- toggle mouse/keyboard control
 		-- read and toggle in one line
