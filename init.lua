@@ -178,6 +178,10 @@ local function get_pitch_lift(y)
 		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
 end
 
+local function damage_driver(driver, damage)
+	driver:set_hp(driver:get_hp() - damage, { type = "fall" })
+end
+
 local function damage_glider(driver, luaent, crash_damage)
 	if not glider_wear then
 		return
@@ -248,9 +252,7 @@ local on_step = function(self, dtime, moveresult)
 			if minetest.registered_nodes[node.name].liquidtype == "none" then
 				-- damage glider first
 				damage_glider(driver, self, crash_damage)
-				-- hurt player
-				local hp = driver:get_hp()
-				driver:set_hp(hp - crash_damage, { type = "fall" })
+				damage_driver(driver, crash_damage)
 			end
 		end
 	elseif not friendly_airspace(pos, self.driver) then
