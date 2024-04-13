@@ -198,14 +198,6 @@ local function player_controls(driver)
 	end
 end
 
-local function rot_to_dir(rot)
-	return vector_new(
-		-math_cos(rot.x) * math_sin(rot.y),
-		math_sin(rot.x),
-		math_cos(rot.x) * math_cos(rot.y)
-	)
-end
-
 local huds = {}
 local rad2deg = 180 / math_pi
 local function update_hud(name, driver, dir, rocket_time, speed)
@@ -246,12 +238,6 @@ local function update_hud(name, driver, dir, rocket_time, speed)
 	})
 end
 
-local function get_pitch_lift(y)
-	return -(1964 / 1755 * y * y * y * y)
-		- (2549 / 3510 * y * y * y)
-		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
-end
-
 local function damage_driver(driver, damage)
 	driver:set_hp(driver:get_hp() - damage, { type = "fall" })
 end
@@ -285,6 +271,20 @@ local function damage_glider(driver, luaent, crash_damage)
 		stack:add_wear(crash_damage * crash_damage_wear_factor)
 		inv:set_stack("main", index, stack)
 	end
+end
+
+local function rot_to_dir(rot)
+	return vector_new(
+		-math_cos(rot.x) * math_sin(rot.y),
+		math_sin(rot.x),
+		math_cos(rot.x) * math_cos(rot.y)
+	)
+end
+
+local function get_pitch_lift(y)
+	return -(1964 / 1755 * y * y * y * y)
+		- (2549 / 3510 * y * y * y)
+		+ (2591 / 7020 * y * y) + (2594 / 3510 * y) + 0.75
 end
 
 local on_step = function(self, dtime, moveresult)
