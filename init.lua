@@ -196,7 +196,10 @@ end
 
 local function player_controls(driver)
 	local meta = driver:get_meta()
-	local inverted = 1 == meta:get_int("glider.inv")
+	-- TODO: fix non-inverted controls in first person view
+	-- until then the inverted value is inverted.
+	-- change back to '1 == meta...' when fixed
+	local inverted = 0 == meta:get_int("glider.inv")
 	if mouse_controls and keyboard_controls then
 		return 0 == meta:get_int("glider.keyC"), inverted
 	else
@@ -566,7 +569,10 @@ local function on_place(_, driver)
 	if keys.aux1 and keys.sneak then
 		-- change inverted up/down
 		-- read and toggle in one line
-		local inverted = 0 == meta:get_int("glider.inv")
+	-- TODO: fix non-inverted controls in first person view
+	-- until then the inverted value is inverted.
+	-- change back to '0 == meta...' when fixed
+		local inverted = 1 == meta:get_int("glider.inv")
 		meta:set_int("glider.inv", inverted and 1 or 0)
 
 		minetest.chat_send_player(driver:get_player_name(),
