@@ -416,26 +416,26 @@ local on_step = function(self, dtime, moveresult)
 			if not pro then
 				-- inverted controls
 				if keys.up then
-					rot.x = rot.x + dtime
+					rot.x = rot.x + dtime * 0.25
 				elseif keys.down then
-					rot.x = rot.x - dtime
+					rot.x = rot.x - dtime * 0.25
 				end
 			else
 				-- pro pilot controls: forward pushes
 				-- nose down, back pulls up
 				if keys.up then
-					rot.x = rot.x - dtime
+					rot.x = rot.x - dtime * 0.25
 				elseif keys.down then
-					rot.x = rot.x + dtime
+					rot.x = rot.x + dtime * 0.25
 				end
 			end
 		end
 		-- ignore if both directions are pressed
 		if keys.left or keys.right then
 			if keys.left then
-				rot.z = rot.z - 2 * dtime
+				rot.z = rot.z - 2 * dtime * 0.5
 			elseif keys.right then
-				rot.z = rot.z + 2 * dtime
+				rot.z = rot.z + 2 * dtime * 0.5
 			end
 		end
 
