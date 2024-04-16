@@ -196,14 +196,11 @@ end
 
 local function player_controls(driver)
 	local meta = driver:get_meta()
-	-- TODO: fix non-inverted controls in first person view
-	-- until then the inverted value is inverted.
-	-- change back to '1 == meta...' when fixed
-	local inverted = 0 == meta:get_int("glider.inv")
+	local pro = 1 == meta:get_int("glider.pro")
 	if mouse_controls and keyboard_controls then
-		return 0 == meta:get_int("glider.keyC"), inverted
+		return 0 == meta:get_int("glider.keyC"), pro
 	else
-		return mouse_controls, inverted
+		return mouse_controls, pro
 	end
 end
 
@@ -394,10 +391,10 @@ local on_step = function(self, dtime, moveresult)
 		return
 	end
 
-	local mouse, inverted = player_controls(driver)
+	local mouse, pro = player_controls(driver)
 	if mouse then
 		local ver = driver:get_look_vertical()
-		if inverted then
+		if not pro then
 			rot.x = rot.x + (-ver - rot.x) * dtime * 2
 		else
 			rot.x = rot.x + (ver - rot.x) * dtime * 2
@@ -416,7 +413,7 @@ local on_step = function(self, dtime, moveresult)
 		local keys = driver:get_player_control()
 		-- ignore if both directions are pressed
 		if keys.up or keys.down then
-			if inverted then
+			if not pro then
 				-- inverted controls
 				if keys.up then
 					rot.x = rot.x + dtime
@@ -424,7 +421,7 @@ local on_step = function(self, dtime, moveresult)
 					rot.x = rot.x - dtime
 				end
 			else
-				-- standard pilot controls: forward pushes
+				-- pro pilot controls: forward pushes
 				-- nose down, back pulls up
 				if keys.up then
 					rot.x = rot.x - dtime
@@ -567,16 +564,13 @@ local function on_place(_, driver)
 	if keys.aux1 and keys.sneak then
 		-- change inverted up/down
 		-- read and toggle in one line
-	-- TODO: fix non-inverted controls in first person view
-	-- until then the inverted value is inverted.
-	-- change back to '0 == meta...' when fixed
-		local inverted = 1 == meta:get_int("glider.inv")
-		meta:set_int("glider.inv", inverted and 1 or 0)
+		local pro = 0 == meta:get_int("glider.pro")
+		meta:set_int("glider.pro", pro and 1 or 0)
 
 		minetest.chat_send_player(driver:get_player_name(),
-			inverted
-				and "Inverted up/down activated (novice)."
-				or "Normal up/down activated (pro pilot).")
+			pro
+				and "Normal up/down activated (pro pilot)."
+				or "Inverted up/down activated (novice).")
 
 	elseif mouse_controls and keyboard_controls
 		and keys.sneak
