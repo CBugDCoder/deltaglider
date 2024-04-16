@@ -209,22 +209,20 @@ end
 
 local huds = {}
 local rad2deg = 180 / math_pi
-local function update_hud(name, driver, dir, rocket_time, speed)
+local function update_hud(name, driver, rot, rocket_time, speed, vV)
 	local info = ""
-	if dir then
+	if rot then
 		-- glider in use
-		local pitch = math_floor((
-			-10 * driver:get_look_vertical() * rad2deg) + 0.5) * 0.1
+		local pitch = math_floor((10 * rot.x * rad2deg) + 0.5) * 0.1
 
-		local heading = math_floor((
-			10 * driver:get_look_horizontal() * rad2deg) + 0.5) * 0.1
+		local heading = math_floor((10 * rot.y * rad2deg) + 0.5) * 0.1
 
-		local sign = 0 == dir.y and "=" or (0 < dir.y and "+" or "-")
+		local sign = 0 == vV and "=" or (0 < vV and "+" or "-")
 		info = "pitch: " .. pitch .. "°"
 			.. " heading: " .. heading .. "°"
 			.. "\n"
-			.. " vV: " .. sign .. math_floor(math_abs(dir.y) + 0.5)
-			.. " alt: " .. math_floor(driver:get_pos().y)
+			.. " vV: " .. sign .. math_floor(10 * math_abs(vV) + 0.5) * 0.1
+			.. " alt: " .. math_floor(driver:get_pos().y + 0.5)
 			.. " v: " .. math_floor(speed + 0.5)
 			.. (0 < rocket_time
 				and ("\n" .. math_floor(rocket_time + 0.5)) or "")
@@ -472,8 +470,8 @@ local on_step = function(self, dtime, moveresult)
 		dir.z * speed
 	)
 	self.speed = speed
-	update_hud(self.driver, driver, dir,
-		rocket_cooldown - self.time_from_last_rocket, speed)
+	update_hud(self.driver, driver, rot,
+		rocket_cooldown - self.time_from_last_rocket, speed, dir.y)
 	self.object:set_velocity(dir)
 end
 
