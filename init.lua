@@ -237,7 +237,6 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 		text      = info,
 		alignment = 0,
 		scale     = { x = 300, y = 90},
-		--size      = { x = 100, y = 100},
 		number    = 0xFFFFFF,
 	})
 end
@@ -467,9 +466,9 @@ local on_step = function(self, dtime, moveresult)
 		dir.z * speed
 	)
 	self.speed = speed
+	self.object:set_velocity(dir)
 	update_hud(self.driver, driver, rot,
 		rocket_cooldown - self.time_from_last_rocket, speed, dir.y)
-	self.object:set_velocity(dir)
 end
 
 local on_use = function(itemstack, driver, pt) --luacheck: no unused args
