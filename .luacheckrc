@@ -20,6 +20,7 @@ read_globals = {
 	},
 	"minetest", "core",
 	"player_monoids",
+	"priv_protector",
 	unifieddyes = {
 		fields = {
 			"get_color_from_dye_name",
@@ -32,4 +33,5 @@ read_globals = {
 			"zero",
 		}
 	},
+	"xp_redo",
 }
