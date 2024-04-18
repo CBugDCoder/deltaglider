@@ -336,18 +336,14 @@ local function get_pitch_lift(y)
 end
 
 local on_step = function(self, dtime, moveresult)
-	local driver = minetest.get_player_by_name(self.driver)
+	local driver = self.object:get_children()[1]
 	if not driver then
-		-- driver logged off
+		-- driver logged off or dead
 		self.object:remove()
 		return
 	end
 
-	if not driver:get_attach() then
-		-- driver died
-		self.object:remove()
-		return
-	elseif not glider.allow_hangglider_while_gliding then
+	if not glider.allow_hangglider_while_gliding then
 		local luaent
 		for _, obj in ipairs(driver:get_children()) do
 			luaent = obj:get_luaentity()
