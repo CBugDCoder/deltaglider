@@ -412,7 +412,7 @@ local on_step = function(self, dtime, moveresult)
 				type = "set_hp", cause = "glider:flak"
 			})
 			-- destroy glider
-			damage_glider(driver, self, 20)
+			damage_glider(driver, self, 1 + 65535 / crash_damage_wear_factor)
 			shoot_flak_sound(pos)
 			land = true
 		end
