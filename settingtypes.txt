@@ -1,3 +1,50 @@
-#When enabled the player will control the glider via looking around.
-#When disabled the player will control the glider via the movement keys.
-glider_mouse_controls (Mouse Controls) bool true
+# Allow players to use mouse to control glider by looking around.
+# Note: if disabled make sure keyboard_controls are enabled.
+#   If both are enabled, players can toggle by placing with glider
+#   in hand (right-click).
+glider.mouse_controls (Mouse controls) bool true
+
+# Allow players to use keyboard to control the glider.
+# Note: if disabled make sure mouse_controls are enabled.
+#   If both are enabled, players can toggle by placing with glider
+#   in hand (right-click).
+glider.keyboard_controls (Keyboard controls) bool true
+
+# The number of times the glider can be used before breaking. Set to 0 for infinite uses.
+glider.uses (Glider uses) int 250 0 65535
+
+# Factor that is multiplied with the hp-based crash damage to
+# add wear to glider upon crashing. Depending on craft recipe
+# and other game design considerations, servers may want glider
+# to receive more or less damage.
+# 0 == no damage; 65535 == fully destroy glider.
+# The default value damages glider 3/4 the amount of what
+# player suffers.
+glider.crash_damage_wear_factor (Crashing damages glider factor) float 2457.5625 0 65535
+
+# Maximum speed of gliders. (Per axis, thus actual speed may be greater.)
+glider.max_speed (Maximum speed) int 30 2 65535
+
+# Use rockets to boost speed (requires [tnt] or [mcl_mobitems]).
+glider.use_rockets (Enable rocket boosters) bool true
+
+# Delay between rocket uses.
+glider.rocket_cooldown (Rocket cooldown delay) int 10 1 65000
+
+# If enabled, and the `areas` mod is installed, enables airspace restrictions to be added to areas.
+glider.enable_flak (Enable flak) bool true
+
+# Time in seconds before gliders get shot down when flying in restricted airspace.
+glider.flak_warning_time (Flak warning time) float 2
+
+# Allow the use of [hangglider] while using this glider.
+# E.g. as a landing helper or damage prevention measure.
+# Disabling this causes server load as the checks are done
+# on every glider on_step.
+# Also disabling this won't prevent users from hot-switching to [hangglider].
+# Some damage will be applied to glider though.
+glider.allow_hangglider_while_gliding (Permit [hangglider] in flight) bool true
+
+# Allow the use of this glider while using [hangglider].
+# This is a bit weird, so default is false.
+glider.allow_while_hanggliding (Permit [glider] while [hangglider is used]) bool false

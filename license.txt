@@ -3,6 +3,7 @@ License of source code
 
 The MIT License (MIT)
 
+Copyright (c) 2024 SwissalpS
 Copyright (c) 2020 CBugDCoder
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,14 +23,21 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
- 
+
 License of media (textures, models)
 -----------------------------------
 
 Attribution 4.0 International (CC BY 4.0)
 
+Copyright (c) 2024 SwissalpS glider_glider.png and glider_glider_color.png
 Copyright (c) 2020 CBugDCoder
 
-This work is licensed under the Creative Commons Attribution 4.0 International License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ 
+This work is licensed under the Creative Commons Attribution 4.0 International License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/
 or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+Sounds
+------
+glider_equip.ogg: CC BY-SA (4.0) by Piezo_.
+	originally bedsheet.ogg copied from mt-mods/hangglider/sounds
+glider_flak_shot.ogg: tnt_explode sound from minetest_game (CC BY-SA 3.0)
