@@ -216,11 +216,11 @@ local function friendly_airspace(pos, name, xp, privs)
 	end
 
 	-- xp limits -> unfriendly
-	if xp_limit then
-		return false
+	if xp and not xp_limit then
+		return true
 	end
 
-	return true
+	return false
 end
 
 local function shoot_flak_sound(pos)
