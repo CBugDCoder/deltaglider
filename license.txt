@@ -29,7 +29,7 @@ License of media (textures, models)
 
 Attribution 4.0 International (CC BY 4.0)
 
-Copyright (c) 2024 SwissalpS glider_glider.png and glider_glider_color.png
+Copyright (c) 2024 SwissalpS deltaglider_glider.png and deltaglider_glider_color.png
 Copyright (c) 2020 CBugDCoder
 
 This work is licensed under the Creative Commons Attribution 4.0 International License.
@@ -38,6 +38,6 @@ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 Sounds
 ------
-glider_equip.ogg: CC BY-SA (4.0) by Piezo_.
+deltaglider_equip.ogg: CC BY-SA (4.0) by Piezo_.
 	originally bedsheet.ogg copied from mt-mods/hangglider/sounds
-glider_flak_shot.ogg: tnt_explode sound from minetest_game (CC BY-SA 3.0)
+deltaglider_flak_shot.ogg: tnt_explode sound from minetest_game (CC BY-SA 3.0)

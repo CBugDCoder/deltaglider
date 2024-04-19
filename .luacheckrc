@@ -1,6 +1,6 @@
 globals = {
 	"areas",
-	"glider",
+	"deltaglider",
 }
 
 read_globals = {

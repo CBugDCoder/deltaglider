@@ -1,8 +1,8 @@
-local rocket_cooldown = glider.rocket_cooldown
+local rocket_cooldown = deltaglider.rocket_cooldown
 
-minetest.register_craftitem("glider:rocket", {
+minetest.register_craftitem("deltaglider:rocket", {
 	description = "Rocket (Use while gliding to boost delta glider speed)",
-	inventory_image = "glider_rocket.png",
+	inventory_image = "deltaglider_rocket.png",
 	on_use = function(itemstack, driver, pt) --luacheck: no unused args
 		local attach = driver:get_attach()
 		if not attach then
@@ -10,11 +10,11 @@ minetest.register_craftitem("glider:rocket", {
 		end
 
 		local luaent = attach:get_luaentity()
-		if luaent.name ~= "glider:hangglider" then
+		if luaent.name ~= "deltaglider:hangglider" then
 			return itemstack
 		end
 
-		-- Avoid rocket overuse. This also throttles max speed.
+		-- Avoid rocket overuse.
 		if rocket_cooldown > luaent.time_from_last_rocket then
 			return itemstack
 		end
@@ -31,7 +31,7 @@ minetest.register_craftitem("glider:rocket", {
 			minexptime = 1,
 			maxexptime = 2,
 			attached = attach,
-			texture = "glider_rocket_particle.png",
+			texture = "deltaglider_rocket_particle.png",
 		})
 
 		-- Use a rocket
@@ -45,7 +45,7 @@ local gunpowder = minetest.get_modpath("mcl_mobitems")
 	or "tnt:gunpowder"
 
 minetest.register_craft({
-	output = "glider:rocket 33",
+	output = "deltaglider:rocket 33",
 	recipe = {
 		{ "group:wood", gunpowder, "group:wood" },
 		{ "group:wood", gunpowder, "group:wood" },

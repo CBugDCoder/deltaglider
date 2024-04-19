@@ -57,26 +57,26 @@ end
 
 -- This recipe is just a placeholder
 do
-	local item = ItemStack("glider:glider")
-	item:get_meta():set_string("description", "Colored Delta Glider")
+	local item = ItemStack("deltaglider:glider")
+	item:get_meta():set_string("description", "Coloured Delta Glider")
 	minetest.register_craft({
 		output = item:to_string(),
-		recipe = { "glider:glider", "group:dye" },
+		recipe = { "deltaglider:glider", "group:dye" },
 		type = "shapeless",
 	})
 end
 
 -- This is what actually creates the colored hangglider
 minetest.register_on_craft(function(crafted_item, _, old_craft_grid)
-	if crafted_item:get_name() ~= "glider:glider" then
+	if crafted_item:get_name() ~= "deltaglider:glider" then
 		return
 	end
 	local wear, color, color_name
 	for _ ,stack in ipairs(old_craft_grid) do
 		local name = stack:get_name()
-		if name == "glider:glider" then
+		if name == "deltaglider:glider" then
 			wear = stack:get_wear()
-			color = stack:get_meta():get("hangglider_color")
+			color = stack:get_meta():get("glider_color")
 			color_name = get_color_name_from_color(color)
 		elseif minetest.get_item_group(name, "dye") ~= 0 then
 			color = get_dye_color(name)
@@ -89,15 +89,15 @@ minetest.register_on_craft(function(crafted_item, _, old_craft_grid)
 	end
 	if wear and color and color_name then
 		if color == "ffffff" then
-			return ItemStack({ name = "glider:glider", wear = wear })
+			return ItemStack({ name = "deltaglider:glider", wear = wear })
 		end
 
 		local meta = crafted_item:get_meta()
 		meta:set_string("description", color_name .. " Delta Glider")
 		meta:set_string("inventory_image",
-			"glider_glider.png^(glider_glider_color.png^[multiply:#"
+			"deltaglider_glider.png^(deltaglider_glider_color.png^[multiply:#"
 			.. color .. ")")
-		meta:set_string("hangglider_color", color)
+		meta:set_string("glider_color", color)
 		crafted_item:set_wear(wear)
 		return crafted_item
 	end
@@ -105,18 +105,18 @@ end)
 
 -- Repairing
 minetest.register_craft({
-	output = "glider:glider",
+	output = "deltaglider:glider",
 	recipe = {
 		{ "default:paper", "default:paper", "default:paper" },
-		{ "default:paper", "glider:glider", "default:paper" },
+		{ "default:paper", "deltaglider:glider", "default:paper" },
 		{ "default:paper", "default:paper", "default:paper" },
 	},
 })
 if has_wool then
 	minetest.register_craft({
-		output = "glider:glider",
+		output = "deltaglider:glider",
 		recipe = {
-			{ "glider:glider", "wool:white" },
+			{ "deltaglider:glider", "wool:white" },
 		},
 	})
 end
@@ -144,7 +144,7 @@ if has_pipeworks then
 end
 
 minetest.register_craft({
-	output = "glider:glider",
+	output = "deltaglider:glider",
 	recipe = {
 		{ string, fabric, string },
 		{ fabric, fabric, fabric },

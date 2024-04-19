@@ -1,14 +1,16 @@
-# Glider: A Realistic Hang Glider Mod
+# Delta Glider: A Realistic Delta Hang Glider Mod
 
-[![luacheck](https://github.com/SwissalpS/minetest_glider/workflows/luacheck/badge.svg)](https://github.com/SwissalpS/minetest_glider/actions)
+[![luacheck](https://github.com/SwissalpS/minetest_deltaglider/workflows/luacheck/badge.svg)](https://github.com/SwissalpS/minetest_glider/actions)
 
 ![Screenshot](screenshot.png)
 
-Have you ever wanted to glide through the mountains and feel the wind rushing by you?
+Have you ever wanted to glide through the mountains and feel the wind rushing
+by you?
 
 Well now, you can!
 
-This [glider] mod adds two items: the glider itself, and a rocket used to boost your speed.
+This [deltaglider] mod adds two items: the glider itself, and a rocket used to
+boost your speed.
 
 Punch while holding the glider to take off and soar.
 
@@ -39,7 +41,7 @@ certain areas, mediums etc. They can also damage or heal the glider with
 these pre-flight and in-flight check functions.
 
 See the comments in [init.lua](init.lua) above the
-``glider.register_grounded_check(func)`` function.
+``deltaglider.register_grounded_check(func)`` function.
 
 Known issue: Pro mouse controls don't work nicely in first person view.
 

@@ -15,7 +15,7 @@ local vector_new = vector.new
 local vector_zero = vector.zero
 
 -- global table for exposed functions
-glider = {
+deltaglider = {
 	version = 20240419.133727,
 }
 
@@ -34,45 +34,45 @@ local has_xp_redo = minetest.get_modpath("xp_redo")
 	and xp_redo.get_area_xp_limits and xp_redo.get_xp
 
 local enable_flak = has_areas and minetest.settings:get_bool(
-	"glider.enable_flak", true)
+	"deltaglider.enable_flak", true)
 
 local flak_warning_time = tonumber(minetest.settings:get(
-	"glider.flak_warning_time")) or 2
+	"deltaglider.flak_warning_time")) or 2
 
 local glider_uses = tonumber(minetest.settings:get(
-	"glider.uses")) or 250
+	"deltaglider.uses")) or 250
 
 local crash_damage_wear_factor = tonumber(
-	minetest.settings:get("glider.crash_damage_wear_factor"))
+	minetest.settings:get("deltaglider.crash_damage_wear_factor"))
 	or 2457.5625
 
 local max_speed = math_max(2, math_min(65535, tonumber(
-	minetest.settings:get("glider.max_speed")) or 30))
+	minetest.settings:get("deltaglider.max_speed")) or 30))
 
 local mouse_controls = minetest.settings:get_bool(
-	"glider.mouse_controls", true)
+	"deltaglider.mouse_controls", true)
 
 local keyboard_controls = minetest.settings:get_bool(
-	"glider.keyboard_controls", true)
+	"deltaglider.keyboard_controls", true)
 
 assert(mouse_controls or keyboard_controls,
 	"Neither mouse nor keyboard controls enabled.")
 
 local use_rockets = has_tnt and minetest.settings:get_bool(
-	"glider.use_rockets", true)
+	"deltaglider.use_rockets", true)
 
 local rocket_cooldown = math_min(65000, math_max(1,
-	tonumber(minetest.settings:get("glider.rocket_cooldown")) or 10))
+	tonumber(minetest.settings:get("deltaglider.rocket_cooldown")) or 10))
 
-glider.rocket_cooldown = rocket_cooldown
+deltaglider.rocket_cooldown = rocket_cooldown
 
 local glider_wear = 0 < glider_uses and (65535 / glider_uses) or nil
 
-glider.allow_hangglider_while_gliding = minetest.settings:get_bool(
-	"glider.allow_hangglider_while_gliding", true)
+deltaglider.allow_hangglider_while_gliding = minetest.settings:get_bool(
+	"deltaglider.allow_hangglider_while_gliding", true)
 
-glider.allow_while_hanggliding = minetest.settings:get_bool(
-	"glider.allow_while_hanggliding", false)
+deltaglider.allow_while_hanggliding = minetest.settings:get_bool(
+	"deltaglider.allow_while_hanggliding", false)
 
 local flak_warning = "You have entered restricted airspace!\n"
 	.. "You will be shot down in " .. flak_warning_time
@@ -104,14 +104,14 @@ if enable_flak and not has_hangglider then
 	})
 end
 
-minetest.register_chatcommand("gliderToggleHUD", {
+minetest.register_chatcommand("deltagliderToggleHUD", {
 	params = "",
 	description = "Toggle delta-glider HUD",
 	func = function(name)
 		local meta = minetest.get_player_by_name(name):get_meta()
-		-- think: glider.HUDdisabled
-		local value = 0 == meta:get_int("glider.HUDd")
-		meta:set_int("glider.HUDd", value and 1 or 0)
+		-- think: deltaglider.HUDdisabled
+		local value = 0 == meta:get_int("deltaglider.HUDd")
+		meta:set_int("deltaglider.HUDd", value and 1 or 0)
 		return true
 	end
 })
@@ -120,7 +120,7 @@ local function set_physics_overrides(player, overrides)
 	if has_player_monoids then
 		for name, value in pairs(overrides) do
 			player_monoids[name]:add_change(
-				player, value, "glider:glider")
+				player, value, "deltaglider:glider")
 		end
 	else
 		player:set_physics_override(overrides)
@@ -131,7 +131,7 @@ local function remove_physics_overrides(player)
 	for _, name in pairs({ "jump", "speed", "gravity" }) do
 		if has_player_monoids then
 			player_monoids[name]:del_change(
-				player, "glider:glider")
+				player, "deltaglider:glider")
 		else
 			player:set_physics_override({ [name] = 1 })
 		end
@@ -153,7 +153,7 @@ end
 -- is also applied. Sensible values are from -20 to 20.
 -- Negative meaning healing.
 local grounded_checks = {}
-function glider.register_grounded_check(func)
+function deltaglider.register_grounded_check(func)
 	grounded_checks[#grounded_checks + 1] = func
 end
 
@@ -236,7 +236,7 @@ local function friendly_airspace(pos, name, xp, privs)
 end
 
 local function shoot_flak_sound(pos)
-	minetest.sound_play("glider_flak_shot", {
+	minetest.sound_play("deltaglider_flak_shot", {
 		pos = pos,
 		max_hear_distance = 30,
 		gain = 10.0,
@@ -244,7 +244,7 @@ local function shoot_flak_sound(pos)
 end
 
 local function equip_sound(pos)
-	minetest.sound_play("glider_equip", {
+	minetest.sound_play("deltaglider_equip", {
 		pos = pos,
 		max_hear_distance = 8,
 		gain = 1.0,
@@ -253,9 +253,9 @@ end
 
 local function player_controls(driver)
 	local meta = driver:get_meta()
-	local pro = 1 == meta:get_int("glider.pro")
+	local pro = 1 == meta:get_int("deltaglider.pro")
 	if mouse_controls and keyboard_controls then
-		return 0 == meta:get_int("glider.keyC"), pro
+		return 0 == meta:get_int("deltaglider.keyC"), pro
 	else
 		return mouse_controls, pro
 	end
@@ -265,8 +265,8 @@ local huds = {}
 local rad2deg = 180 / math_pi
 local function update_hud(name, driver, rot, rocket_time, speed, vV)
 	local info = ""
-	if rot and (0 == driver:get_meta():get_int("glider.HUDd")) then
 		-- glider in use and not disabled
+	if rot and (0 == driver:get_meta():get_int("deltaglider.HUDd")) then
 		local pitch = string.format("%.1f", rot.x * rad2deg)
 		local yaw = rot.y
 		if 0 > yaw then
@@ -320,7 +320,7 @@ local function damage_glider(driver, luaent, crash_damage)
 		local index_alt
 		index, stack = nil, nil
 		for i, is in ipairs(inv:get_list("main")) do
-			if is:get_name() == "glider:glider" then
+			if is:get_name() == "deltaglider:glider" then
 				index_alt = i
 			end
 			if is:to_string() == luaent.tool_string then
@@ -361,7 +361,7 @@ local on_step = function(self, dtime, moveresult)
 		return
 	end
 
-	if not glider.allow_hangglider_while_gliding then
+	if not deltaglider.allow_hangglider_while_gliding then
 		local luaent
 		for _, obj in ipairs(driver:get_children()) do
 			luaent = obj:get_luaentity()
@@ -423,7 +423,7 @@ local on_step = function(self, dtime, moveresult)
 		end
 		if self.flak_timer > flak_warning_time then
 			driver:set_hp(1, {
-				type = "set_hp", cause = "glider:flak"
+				type = "set_hp", cause = "deltaglider:flak"
 			})
 			-- destroy glider
 			damage_glider(driver, self, 1 + 65535 / crash_damage_wear_factor)
@@ -541,7 +541,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 	local luaent, vel
 	if attach then
 		luaent = attach:get_luaentity()
-		if luaent.name == "glider:hangglider" then
+		if luaent.name == "deltaglider:hangglider" then
 			vel = attach:get_velocity()
 			attach:remove()
 			driver:set_detach()
@@ -552,7 +552,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			update_hud(name, driver)
 		end
 	else
-		if not glider.allow_while_hanggliding then
+		if not deltaglider.allow_while_hanggliding then
 			for _, obj in ipairs(driver:get_children()) do
 				luaent = obj:get_luaentity()
 				if luaent and luaent.name == "hangglider:glider" then
@@ -571,7 +571,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 		end
 
 		pos.y = pos.y + 1.5
-		local ent = minetest.add_entity(pos, "glider:hangglider")
+		local ent = minetest.add_entity(pos, "deltaglider:hangglider")
 		if not ent then
 			-- failed to create entity -> abort
 			return
@@ -601,7 +601,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			vector_new(0, -15, 0))
 
 		set_physics_overrides(driver, { jump = 0, gravity = 0.25 })
-		local color = itemstack:get_meta():get("hangglider_color")
+		local color = itemstack:get_meta():get("glider_color")
 		if color then
 			ent:set_properties({
 				textures = { "wool_white.png^[multiply:#" .. color }
@@ -628,8 +628,8 @@ local function on_place(_, driver)
 	if keys.aux1 and keys.sneak then
 		-- change inverted up/down
 		-- read and toggle in one line
-		local pro = 0 == meta:get_int("glider.pro")
-		meta:set_int("glider.pro", pro and 1 or 0)
+		local pro = 0 == meta:get_int("deltaglider.pro")
+		meta:set_int("deltaglider.pro", pro and 1 or 0)
 
 		minetest.chat_send_player(driver:get_player_name(),
 			pro
@@ -641,8 +641,8 @@ local function on_place(_, driver)
 	then
 		-- toggle mouse/keyboard control
 		-- read and toggle in one line
-		local key_c = 0 == meta:get_int("glider.keyC")
-		meta:set_int("glider.keyC", key_c and 1 or 0)
+		local key_c = 0 == meta:get_int("deltaglider.keyC")
+		meta:set_int("deltaglider.keyC", key_c and 1 or 0)
 
 		minetest.chat_send_player(driver:get_player_name(),
 			key_c
@@ -651,12 +651,12 @@ local function on_place(_, driver)
 	end
 end
 
-minetest.register_entity("glider:hangglider", {
+minetest.register_entity("deltaglider:hangglider", {
 	physical = true,
 	pointable = false,
 	visual = "mesh",
-	mesh = "glider_hangglider.obj",
-	textures = { "glider_hangglider.png" },
+	mesh = "deltaglider_hangglider.obj",
+	textures = { "deltaglider_hangglider.png" },
 	static_save = false,
 	--Functions
 	on_step = on_step,
@@ -667,14 +667,14 @@ minetest.register_entity("glider:hangglider", {
 	time_from_last_rocket = rocket_cooldown,
 })
 
-minetest.register_tool("glider:glider", {
+minetest.register_tool("deltaglider:glider", {
 	description = "Delta Glider",
-	inventory_image = "glider_glider.png",
+	inventory_image = "deltaglider_glider.png",
 	on_use = on_use,
 	on_secondary_use = on_place,
 })
 
-local mp = minetest.get_modpath("glider")
+local mp = minetest.get_modpath("deltaglider")
 dofile(mp .. "/crafts.lua")
 if use_rockets then
 	dofile(mp .. "/rocket.lua")
@@ -690,6 +690,10 @@ minetest.register_on_leaveplayer(function(player)
 	huds[player:get_player_name()] = nil
 end)
 
-print("[glider] loaded with"
+minetest.register_alias("glider:glider", "deltaglider:glider")
+minetest.register_alias("glider:rocket", "deltaglider:rocket")
+minetest.register_alias("glider:hangglider", "deltaglider:hangglider")
+
+print("[deltaglider] loaded with"
 	.. (use_rockets and " " or "out ") .. "rockets.")
 
