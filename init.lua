@@ -271,7 +271,8 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 			.. " alt: " .. math_floor(driver:get_pos().y + 0.5)
 			.. " v: " .. math_floor(speed + 0.5)
 			.. (0 < rocket_time
-				and ("\n" .. math_floor(rocket_time + 0.5)) or "")
+				and ("\ncooldown: "
+					.. math_floor(rocket_time + 0.5) .. "s") or "")
 	end
 
 	if huds[name] then
