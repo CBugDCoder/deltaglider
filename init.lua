@@ -263,11 +263,12 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 			yaw = yaw - math_pi2
 		end
 		local heading = math_floor((yaw * rad2deg) + 0.5)
+		local climb = string.format("%.1f", math_abs(vV))
 		local sign = 0 == vV and "=" or (0 < vV and "+" or "-")
 		info = "pitch: " .. pitch .. "°"
 			.. " heading: " .. heading .. "°"
 			.. "\n"
-			.. " vV: " .. sign .. math_floor(10 * math_abs(vV) + 0.5) * 0.1
+			.. " vV: " .. sign .. climb
 			.. " alt: " .. math_floor(driver:get_pos().y + 0.5)
 			.. " v: " .. math_floor(speed + 0.5)
 			.. (0 < rocket_time
