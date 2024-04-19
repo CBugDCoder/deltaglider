@@ -265,8 +265,8 @@ local huds = {}
 local rad2deg = 180 / math_pi
 local function update_hud(name, player, rot, rocket_time, speed, vV)
 	local info = ""
-		-- glider in use and not disabled
 	if rot and (0 == player:get_meta():get_int("deltaglider.HUDd")) then
+		-- glider in use and HUD not disabled
 		local pitch = string.format("%.1f", rot.x * rad2deg)
 		local yaw = rot.y
 		if 0 > yaw then
@@ -356,7 +356,7 @@ end
 local on_step = function(self, dtime, moveresult)
 	local player = self.object:get_children()[1]
 	if not player then
-		-- player logged off or dead
+		-- player logged off or died
 		self.object:remove()
 		return
 	end
@@ -534,7 +534,7 @@ local on_step = function(self, dtime, moveresult)
 		rocket_cooldown - self.time_from_last_rocket, speed, dir.y)
 end
 
-local on_use = function(itemstack, player, pt) --luacheck: no unused args
+local on_use = function(itemstack, player)
 	if type(player) ~= "userdata" then
 		return  -- Real players only
 	end
