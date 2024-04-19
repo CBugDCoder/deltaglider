@@ -16,7 +16,7 @@ local vector_zero = vector.zero
 
 -- global table for exposed functions
 deltaglider = {
-	version = 20240419.133727,
+	version = 20240419.161300,
 }
 
 local has_areas = minetest.get_modpath("areas")
