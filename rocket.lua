@@ -24,12 +24,12 @@ minetest.register_craftitem("glider:rocket", {
 
 		-- Add some fancy particles
 		minetest.add_particlespawner({
-			amount = 1000,
+			amount = 200,
 			time = 2,
-			minpos = { x = -0.125, y = -0.125, z = -0.125 },
-			maxpos = { x = 0.125, y = 0.125, z = 0.125 },
-			minexptime = 0.5,
-			maxexptime = 1.5,
+			minpos = { x = -0.05, y = -0.05, z = -0.05 },
+			maxpos = { x = 0.05, y = 0.05, z = 0.05 },
+			minexptime = 1,
+			maxexptime = 2,
 			attached = attach,
 			texture = "glider_rocket_particle.png",
 		})

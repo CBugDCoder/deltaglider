@@ -104,6 +104,18 @@ if enable_flak and not has_hangglider then
 	})
 end
 
+minetest.register_chatcommand("gliderToggleHUD", {
+	params = "",
+	description = "Toggle delta-glider HUD",
+	func = function(name)
+		local meta = minetest.get_player_by_name(name):get_meta()
+		-- think: glider.HUDdisabled
+		local value = 0 == meta:get_int("glider.HUDd")
+		meta:set_int("glider.HUDd", value and 1 or 0)
+		return true
+	end
+})
+
 local function set_physics_overrides(player, overrides)
 	if has_player_monoids then
 		for name, value in pairs(overrides) do
@@ -253,21 +265,27 @@ local huds = {}
 local rad2deg = 180 / math_pi
 local function update_hud(name, driver, rot, rocket_time, speed, vV)
 	local info = ""
-	if rot then
-		-- glider in use
-		local pitch = math_floor((10 * rot.x * rad2deg) + 0.5) * 0.1
-
-		local heading = math_floor((10 * rot.y * rad2deg) + 0.5) * 0.1
-
+	if rot and (0 == driver:get_meta():get_int("glider.HUDd")) then
+		-- glider in use and not disabled
+		local pitch = string.format("%.1f", rot.x * rad2deg)
+		local yaw = rot.y
+		if 0 > yaw then
+			yaw = yaw + math_pi2
+		elseif math_pi2 < yaw then
+			yaw = yaw - math_pi2
+		end
+		local heading = math_floor((yaw * rad2deg) + 0.5)
+		local climb = string.format("%.1f", math_abs(vV))
 		local sign = 0 == vV and "=" or (0 < vV and "+" or "-")
-		info = "pitch: " .. pitch .. "°"
-			.. " heading: " .. heading .. "°"
+		info = "Pitch: " .. pitch .. "°"
+			.. "   Heading: " .. heading .. "°"
 			.. "\n"
-			.. " vV: " .. sign .. math_floor(10 * math_abs(vV) + 0.5) * 0.1
-			.. " alt: " .. math_floor(driver:get_pos().y + 0.5)
-			.. " v: " .. math_floor(speed + 0.5)
+			.. "Lift: " .. sign .. climb
+			.. "   Altitude: " .. math_floor(driver:get_pos().y + 0.5)
+			.. "   Speed: " .. math_floor(speed + 0.5)
 			.. (0 < rocket_time
-				and ("\n" .. math_floor(rocket_time + 0.5)) or "")
+				and ("\nCooldown: "
+					.. math_floor(rocket_time + 0.5) .. "s") or "")
 	end
 
 	if huds[name] then
