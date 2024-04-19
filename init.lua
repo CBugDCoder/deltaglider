@@ -16,7 +16,7 @@ local vector_zero = vector.zero
 
 -- global table for exposed functions
 glider = {
-	version = 20240418.142741,
+	version = 20240419.133727,
 }
 
 local has_areas = minetest.get_modpath("areas")
