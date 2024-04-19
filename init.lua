@@ -141,9 +141,9 @@ end
 -- Allow other mods to register custom flight checks
 -- to disallow flying in certain areas or materials
 -- such as on the moon or without priv in certain area
--- The function's signature is: (name, driver, luaent)
+-- The function's signature is: (name, player, luaent)
 -- name: (string) player's name
--- driver: (PlayerObjRef) the player object
+-- player: (PlayerObjRef) the player object
 -- luaent: (nil or luaentity) the glider luaentity. When set,
 --   player is already flying. When not, player would like to
 --   take off.
@@ -157,7 +157,7 @@ function deltaglider.register_grounded_check(func)
 	grounded_checks[#grounded_checks + 1] = func
 end
 
-local function custom_grounded_checks(name, driver, luaent)
+local function custom_grounded_checks(name, player, luaent)
 	local is_grounded = false
 	local damage = 0
 	local i = #grounded_checks
@@ -167,7 +167,7 @@ local function custom_grounded_checks(name, driver, luaent)
 
 	local res_bool, res_int
 	repeat
-		res_bool, res_int = grounded_checks[i](name, driver, luaent)
+		res_bool, res_int = grounded_checks[i](name, player, luaent)
 		if res_bool then
 			is_grounded = true
 		end
@@ -251,8 +251,8 @@ local function equip_sound(pos)
 	}, true)
 end
 
-local function player_controls(driver)
-	local meta = driver:get_meta()
+local function player_controls(player)
+	local meta = player:get_meta()
 	local pro = 1 == meta:get_int("deltaglider.pro")
 	if mouse_controls and keyboard_controls then
 		return 0 == meta:get_int("deltaglider.keyC"), pro
@@ -263,10 +263,10 @@ end
 
 local huds = {}
 local rad2deg = 180 / math_pi
-local function update_hud(name, driver, rot, rocket_time, speed, vV)
+local function update_hud(name, player, rot, rocket_time, speed, vV)
 	local info = ""
 		-- glider in use and not disabled
-	if rot and (0 == driver:get_meta():get_int("deltaglider.HUDd")) then
+	if rot and (0 == player:get_meta():get_int("deltaglider.HUDd")) then
 		local pitch = string.format("%.1f", rot.x * rad2deg)
 		local yaw = rot.y
 		if 0 > yaw then
@@ -281,7 +281,7 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 			.. "   Heading: " .. heading .. "°"
 			.. "\n"
 			.. "Lift: " .. sign .. climb
-			.. "   Altitude: " .. math_floor(driver:get_pos().y + 0.5)
+			.. "   Altitude: " .. math_floor(player:get_pos().y + 0.5)
 			.. "   Speed: " .. math_floor(speed + 0.5)
 			.. (0 < rocket_time
 				and ("\nCooldown: "
@@ -289,11 +289,11 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 	end
 
 	if huds[name] then
-		driver:hud_change(huds[name], "text", info)
+		player:hud_change(huds[name], "text", info)
 		return
 	end
 
-	huds[name] = driver:hud_add({
+	huds[name] = player:hud_add({
 		hud_elem_type = "text",
 		position  = {x = 0.5, y = 0.8},
 		offset    = {x = 0, y = 0},
@@ -304,17 +304,17 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 	})
 end
 
-local function damage_driver(driver, damage)
-	driver:set_hp(driver:get_hp() - damage, { type = "fall" })
+local function damage_player(player, damage)
+	player:set_hp(player:get_hp() - damage, { type = "fall" })
 end
 
-local function damage_glider(driver, luaent, crash_damage)
+local function damage_glider(player, luaent, crash_damage)
 	if not glider_wear then
 		return
 	end
 
 	local index = luaent.wield_index
-	local inv = driver:get_inventory()
+	local inv = player:get_inventory()
 	local stack = inv:get_stack("main", index)
 	if stack:to_string() ~= luaent.tool_string then
 		local index_alt
@@ -354,24 +354,24 @@ local function get_pitch_lift(y)
 end
 
 local on_step = function(self, dtime, moveresult)
-	local driver = self.object:get_children()[1]
-	if not driver then
-		-- driver logged off or dead
+	local player = self.object:get_children()[1]
+	if not player then
+		-- player logged off or dead
 		self.object:remove()
 		return
 	end
 
 	if not deltaglider.allow_hangglider_while_gliding then
 		local luaent
-		for _, obj in ipairs(driver:get_children()) do
+		for _, obj in ipairs(player:get_children()) do
 			luaent = obj:get_luaentity()
 			if luaent and luaent.name == "hangglider:glider" then
-				damage_glider(driver, self, 2)
-				driver:set_detach()
-				driver:set_eye_offset(vector_zero(), vector_zero())
-				remove_physics_overrides(driver)
-				driver:add_velocity(self.object:get_velocity())
-				update_hud(self.driver, driver)
+				damage_glider(player, self, 2)
+				player:set_detach()
+				player:set_eye_offset(vector_zero(), vector_zero())
+				remove_physics_overrides(player)
+				player:add_velocity(self.object:get_velocity())
+				update_hud(self.player_name, player)
 				self.object:remove()
 				return
 			end
@@ -409,55 +409,59 @@ local on_step = function(self, dtime, moveresult)
 			local node = minetest.get_node(pos)
 			if minetest.registered_nodes[node.name].liquidtype == "none" then
 				-- damage glider first
-				damage_glider(driver, self, crash_damage)
-				damage_driver(driver, crash_damage)
+				damage_glider(player, self, crash_damage)
+				damage_player(player, crash_damage)
 			end
 		end
-	elseif not friendly_airspace(pos, self.driver, self.xp, self.privs) then
+	elseif not friendly_airspace(pos, self.player_name,
+			self.xp, self.privs)
+	then
 		if not self.flak_timer then
 			self.flak_timer = 0
 			shoot_flak_sound(pos)
-			minetest.chat_send_player(self.driver, flak_warning)
+			minetest.chat_send_player(self.player_name, flak_warning)
 		else
 			self.flak_timer = self.flak_timer + dtime
 		end
 		if self.flak_timer > flak_warning_time then
-			driver:set_hp(1, {
+			player:set_hp(1, {
 				type = "set_hp", cause = "deltaglider:flak"
 			})
 			-- destroy glider
-			damage_glider(driver, self, 1 + 65535 / crash_damage_wear_factor)
+			damage_glider(player, self, 1 + 65535 / crash_damage_wear_factor)
 			shoot_flak_sound(pos)
 			land = true
 		end
 	else
-		land, crash_damage = custom_grounded_checks(self.driver, driver, self)
+		land, crash_damage = custom_grounded_checks(
+			self.player_name, player, self)
+
 		if 0 ~= crash_damage then
-			damage_glider(driver, self, crash_damage)
-			damage_driver(driver, crash_damage)
+			damage_glider(player, self, crash_damage)
+			damage_player(player, crash_damage)
 		end
 	end
 
 	if land then
-		driver:set_detach()
-		driver:set_eye_offset(vector_zero(), vector_zero())
-		remove_physics_overrides(driver)
-		driver:add_velocity(vel)
+		player:set_detach()
+		player:set_eye_offset(vector_zero(), vector_zero())
+		remove_physics_overrides(player)
+		player:add_velocity(vel)
 		self.object:remove()
 		equip_sound(pos)
-		update_hud(self.driver, driver)
+		update_hud(self.player_name, player)
 		return
 	end
 
-	local mouse, pro = player_controls(driver)
+	local mouse, pro = player_controls(player)
 	if mouse then
-		local ver = driver:get_look_vertical()
+		local ver = player:get_look_vertical()
 		if not pro then
 			rot.x = rot.x + (-ver - rot.x) * dtime * 2
 		else
 			rot.x = rot.x + (ver - rot.x) * dtime * 2
 		end
-		local hor = driver:get_look_horizontal()
+		local hor = player:get_look_horizontal()
 		local angle = hor - rot.y
 		if angle < -math_pi then
 			angle = angle + math_pi2
@@ -468,7 +472,7 @@ local on_step = function(self, dtime, moveresult)
 		speed = speed - math_abs(angle * dtime)
 		rot.z = -angle
 	else
-		local keys = driver:get_player_control()
+		local keys = player:get_player_control()
 		-- ignore if both directions are pressed
 		if keys.up or keys.down then
 			if not pro then
@@ -526,34 +530,34 @@ local on_step = function(self, dtime, moveresult)
 	)
 	self.speed = speed
 	self.object:set_velocity(dir)
-	update_hud(self.driver, driver, rot,
+	update_hud(self.player_name, player, rot,
 		rocket_cooldown - self.time_from_last_rocket, speed, dir.y)
 end
 
-local on_use = function(itemstack, driver, pt) --luacheck: no unused args
-	if type(driver) ~= "userdata" then
+local on_use = function(itemstack, player, pt) --luacheck: no unused args
+	if type(player) ~= "userdata" then
 		return  -- Real players only
 	end
 
-	local name = driver:get_player_name()
-	local pos = driver:get_pos()
-	local attach = driver:get_attach()
+	local name = player:get_player_name()
+	local pos = player:get_pos()
+	local attach = player:get_attach()
 	local luaent, vel
 	if attach then
 		luaent = attach:get_luaentity()
 		if luaent.name == "deltaglider:hangglider" then
 			vel = attach:get_velocity()
 			attach:remove()
-			driver:set_detach()
-			driver:set_eye_offset(vector_zero(), vector_zero())
-			remove_physics_overrides(driver)
-			driver:add_velocity(vel)
+			player:set_detach()
+			player:set_eye_offset(vector_zero(), vector_zero())
+			remove_physics_overrides(player)
+			player:add_velocity(vel)
 			equip_sound(pos)
-			update_hud(name, driver)
+			update_hud(name, player)
 		end
 	else
 		if not deltaglider.allow_while_hanggliding then
-			for _, obj in ipairs(driver:get_children()) do
+			for _, obj in ipairs(player:get_children()) do
 				luaent = obj:get_luaentity()
 				if luaent and luaent.name == "hangglider:glider" then
 					return
@@ -561,11 +565,11 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			end
 		end
 
-		local grounded, damage = custom_grounded_checks(name, driver)
+		local grounded, damage = custom_grounded_checks(name, player)
 		if grounded then
 			if 0 ~= damage then
 				itemstack:add_wear(damage * crash_damage_wear_factor)
-				damage_driver(driver, damage)
+				damage_player(player, damage)
 			end
 			return itemstack
 		end
@@ -578,7 +582,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 		end
 
 		luaent = ent:get_luaentity()
-		luaent.driver = name
+		luaent.player_name = name
 		if has_xp_redo then
 			luaent.xp = xp_redo.get_xp(name)
 		end
@@ -586,21 +590,21 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 			luaent.privs = minetest.get_player_privs(name)
 		end
 		local rot = vector_new(
-			-driver:get_look_vertical(),
-			driver:get_look_horizontal(),
+			-player:get_look_vertical(),
+			player:get_look_horizontal(),
 			0
 		)
 		ent:set_rotation(rot)
-		vel = vector_multiply(driver:get_velocity(), 2)
+		vel = vector_multiply(player:get_velocity(), 2)
 		ent:set_velocity(vel)
 		luaent.speed = math_sqrt(vel.x ^ 2 + (vel.y * 0.25) ^ 2 + vel.z ^ 2)
-		driver:set_attach(ent, "", vector_new(0, 0, -10),
+		player:set_attach(ent, "", vector_new(0, 0, -10),
 			vector_new(90, 0, 0))
 
-		driver:set_eye_offset(vector_new(0, -16.25, 0),
+		player:set_eye_offset(vector_new(0, -16.25, 0),
 			vector_new(0, -15, 0))
 
-		set_physics_overrides(driver, { jump = 0, gravity = 0.25 })
+		set_physics_overrides(player, { jump = 0, gravity = 0.25 })
 		local color = itemstack:get_meta():get("glider_color")
 		if color then
 			ent:set_properties({
@@ -609,7 +613,7 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 		end
 		if glider_wear then
 			itemstack:add_wear(glider_wear)
-			luaent.wield_index = driver:get_wield_index()
+			luaent.wield_index = player:get_wield_index()
 			luaent.tool_string = itemstack:to_string()
 		end
 		equip_sound(pos)
@@ -617,13 +621,13 @@ local on_use = function(itemstack, driver, pt) --luacheck: no unused args
 	end
 end
 
-local function on_place(_, driver)
-	if type(driver) ~= "userdata" then
+local function on_place(_, player)
+	if type(player) ~= "userdata" then
 		return  -- Real players only
 	end
 
-	local meta = driver:get_meta()
-	local keys = driver:get_player_control()
+	local meta = player:get_meta()
+	local keys = player:get_player_control()
 
 	if keys.aux1 and keys.sneak then
 		-- change inverted up/down
@@ -631,7 +635,7 @@ local function on_place(_, driver)
 		local pro = 0 == meta:get_int("deltaglider.pro")
 		meta:set_int("deltaglider.pro", pro and 1 or 0)
 
-		minetest.chat_send_player(driver:get_player_name(),
+		minetest.chat_send_player(player:get_player_name(),
 			pro
 				and "Normal up/down activated (pro pilot)."
 				or "Inverted up/down activated (novice).")
@@ -644,7 +648,7 @@ local function on_place(_, driver)
 		local key_c = 0 == meta:get_int("deltaglider.keyC")
 		meta:set_int("deltaglider.keyC", key_c and 1 or 0)
 
-		minetest.chat_send_player(driver:get_player_name(),
+		minetest.chat_send_player(player:get_player_name(),
 			key_c
 				and "Keyboard controls activated."
 				or "Mouse controls activated.")
@@ -661,7 +665,7 @@ minetest.register_entity("deltaglider:hangglider", {
 	--Functions
 	on_step = on_step,
 	grav_speed = 0,
-	driver = "",
+	player_name = "",
 	free_fall = false,
 	speed = 0,
 	time_from_last_rocket = rocket_cooldown,

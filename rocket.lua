@@ -3,8 +3,8 @@ local rocket_cooldown = deltaglider.rocket_cooldown
 minetest.register_craftitem("deltaglider:rocket", {
 	description = "Rocket (Use while gliding to boost delta glider speed)",
 	inventory_image = "deltaglider_rocket.png",
-	on_use = function(itemstack, driver, pt) --luacheck: no unused args
-		local attach = driver:get_attach()
+	on_use = function(itemstack, player, pt) --luacheck: no unused args
+		local attach = player:get_attach()
 		if not attach then
 			return itemstack
 		end
