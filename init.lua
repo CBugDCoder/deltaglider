@@ -255,10 +255,9 @@ local function update_hud(name, driver, rot, rocket_time, speed, vV)
 	local info = ""
 	if rot then
 		-- glider in use
-		local pitch = math_floor((10 * rot.x * rad2deg) + 0.5) * 0.1
-
 		local heading = math_floor((10 * rot.y * rad2deg) + 0.5) * 0.1
 
+		local pitch = string.format("%.1f", rot.x * rad2deg)
 		local sign = 0 == vV and "=" or (0 < vV and "+" or "-")
 		info = "pitch: " .. pitch .. "°"
 			.. " heading: " .. heading .. "°"
