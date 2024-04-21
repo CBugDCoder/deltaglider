@@ -1,4 +1,6 @@
 
+local S = deltaglider.translator
+
 local has_basic_materials = minetest.get_modpath("basic_materials")
 local has_farming = minetest.get_modpath("farming")
 local has_pipeworks = minetest.get_modpath("pipeworks")
@@ -24,6 +26,24 @@ local dye_colors = {
 	pink       = "ff7f9f",
 }
 
+local translated_colors = {
+	white      = S("white"),
+	grey       = S("grey"),
+	dark_grey  = S("dark_grey"),
+	black      = S("black"),
+	violet     = S("violet"),
+	blue       = S("blue"),
+	cyan       = S("cyan"),
+	dark_green = S("dark_green"),
+	green      = S("green"),
+	yellow     = S("yellow"),
+	brown      = S("brown"),
+	orange     = S("orange"),
+	red        = S("red"),
+	magenta    = S("magenta"),
+	pink       = S("pink"),
+}
+
 local function get_dye_color(name)
 	local color
 	if has_unifieddyes then
@@ -40,15 +60,13 @@ end
 
 local function get_color_name(name)
 	name = string.gsub(name, "^dye:", "")
-	name = string.gsub(name, "_", " ")
-	name = string.gsub(name, "(%l)(%w*)", function(a, b) return string.upper(a) .. b end)
-	return name
+	return translated_colors[name]
 end
 
 local function get_color_name_from_color(color)
 	for name, color_hex in pairs(dye_colors) do
 		if color == color_hex then
-			return name
+			return translated_colors[name]
 		end
 	end
 
@@ -58,7 +76,7 @@ end
 -- This recipe is just a placeholder
 do
 	local item = ItemStack("deltaglider:glider")
-	item:get_meta():set_string("description", "Coloured Delta Glider")
+	item:get_meta():set_string("description", S("Coloured Delta Glider"))
 	minetest.register_craft({
 		output = item:to_string(),
 		recipe = { "deltaglider:glider", "group:dye" },
@@ -93,7 +111,7 @@ minetest.register_on_craft(function(crafted_item, _, old_craft_grid)
 		end
 
 		local meta = crafted_item:get_meta()
-		meta:set_string("description", color_name .. " Delta Glider")
+		meta:set_string("description", S("@1 Delta Glider", color_name))
 		meta:set_string("inventory_image",
 			"deltaglider_glider.png^(deltaglider_glider_color.png^[multiply:#"
 			.. color .. ")")

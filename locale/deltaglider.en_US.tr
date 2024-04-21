@@ -1,0 +1,40 @@
+# textdomain: deltaglider
+white=White
+grey=Grey
+dark_grey=Dark Grey
+black=Black
+violet=Violet
+blue=Blue
+cyan=Cyan
+dark_green=Dark Green
+green=Green
+yellow=Yellow
+brown=Brown
+orange=Orange
+red=Red
+magenta=Magenta
+pink=Pink
+Coloured Delta Glider=Colored Delta Glider
+@1 Delta Glider=
+You have entered restricted airspace!@@You will be shot down in @1 seconds by anti-aircraft guns!
+<ID>=
+Toggle airspace restrictions for area <ID>=Toggle airspace restrictions for area <ID>.
+Invalid usage, see /help area_flak.=
+Area @1 does not exist or is not owned by you.=
+Area @1 airspace @2=Area @1 airspace is @2.
+closed=
+opened=
+Toggle delta-glider HUD=Toggle delta glider's HUD.
+Pitch=
+Heading=
+Lift=
+Altitude=
+Speed=Velocity
+Cooldown=Cool Down
+Normal up/down activated (pro pilot).=
+Inverted up/down activated (novice).=Inverted up/down activated (rookie).
+Keyboard controls activated.=
+Mouse controls activated.=
+Delta Glider=
+Rocket (Use while gliding to boost delta glider speed)=Rocket (Use while gliding to boost delta glider speed.)
+

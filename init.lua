@@ -17,7 +17,9 @@ local vector_zero = vector.zero
 -- global table for exposed functions
 deltaglider = {
 	version = 20240419.161300,
+	translator = minetest.get_translator('deltaglider'),
 }
+local S = deltaglider.translator
 
 local has_areas = minetest.get_modpath("areas")
 local has_hangglider = minetest.get_modpath("hangglider")
@@ -74,39 +76,39 @@ deltaglider.allow_hangglider_while_gliding = minetest.settings:get_bool(
 deltaglider.allow_while_hanggliding = minetest.settings:get_bool(
 	"deltaglider.allow_while_hanggliding", false)
 
-local flak_warning = "You have entered restricted airspace!\n"
-	.. "You will be shot down in " .. flak_warning_time
-	.. " seconds by anti-aircraft guns!"
+local flak_warning = S("You have entered restricted airspace!@n"
+	.. "You will be shot down in @1"
+	.. " seconds by anti-aircraft guns!", flak_warning_time)
 
 -- only register chatcommand if [hangglider] isn't available
 if enable_flak and not has_hangglider then
 	minetest.register_chatcommand("area_flak", {
-		params = "<ID>",
-		description = "Toggle airspace restrictions for area <ID>",
+		params = S("<ID>"),
+		description = S("Toggle airspace restrictions for area <ID>"),
 		func = function(name, param)
 			local id = tonumber(param)
 			if not id then
-				return false, "Invalid usage, see /help area_flak."
+				return false, S("Invalid usage, see /help area_flak.")
 			end
 
 			if not areas:isAreaOwner(id, name) then
-				return false, "Area " .. id
-					.. " does not exist or is not owned by you."
+				return false, S("Area @1 does not exist or"
+					.. " is not owned by you.", id)
 			end
 
 			local open = not areas.areas[id].flak
 			-- Save false as nil to avoid inflating the DB.
 			areas.areas[id].flak = open or nil
 			areas:save()
-			return true, "Area " .. id .. " airspace "
-				.. (open and "closed" or "opened")
+			return true, S("Area @1 airspace @2", id,
+				open and S("closed") or S("opened"))
 		end
 	})
 end
 
 minetest.register_chatcommand("deltagliderToggleHUD", {
 	params = "",
-	description = "Toggle delta-glider HUD",
+	description = S("Toggle delta-glider HUD"),
 	func = function(name)
 		local meta = minetest.get_player_by_name(name):get_meta()
 		-- think: deltaglider.HUDdisabled
@@ -277,14 +279,15 @@ local function update_hud(name, player, rot, rocket_time, speed, vV)
 		local heading = math_floor((yaw * rad2deg) + 0.5)
 		local climb = string.format("%.1f", math_abs(vV))
 		local sign = 0 == vV and "=" or (0 < vV and "+" or "-")
-		info = "Pitch: " .. pitch .. "°"
-			.. "   Heading: " .. heading .. "°"
+		info = S("Pitch") .. ": " .. pitch .. "°"
+			.. "   " .. S("Heading") .. ": " .. heading .. "°"
 			.. "\n"
-			.. "Lift: " .. sign .. climb
-			.. "   Altitude: " .. math_floor(player:get_pos().y + 0.5)
-			.. "   Speed: " .. math_floor(speed + 0.5)
+			.. S("Lift") .. ": " .. sign .. climb
+			.. "   " .. S("Altitude") .. ": "
+			.. math_floor(player:get_pos().y + 0.5)
+			.. "   " .. S("Speed") .. ": " .. math_floor(speed + 0.5)
 			.. (0 < rocket_time
-				and ("\nCooldown: "
+				and ("\n" .. S("Cooldown") .. ": "
 					.. math_floor(rocket_time + 0.5) .. "s") or "")
 	end
 
@@ -637,8 +640,8 @@ local function on_place(_, player)
 
 		minetest.chat_send_player(player:get_player_name(),
 			pro
-				and "Normal up/down activated (pro pilot)."
-				or "Inverted up/down activated (novice).")
+				and S("Normal up/down activated (pro pilot).")
+				or S("Inverted up/down activated (novice)."))
 
 	elseif mouse_controls and keyboard_controls
 		and keys.sneak
@@ -650,8 +653,8 @@ local function on_place(_, player)
 
 		minetest.chat_send_player(player:get_player_name(),
 			key_c
-				and "Keyboard controls activated."
-				or "Mouse controls activated.")
+				and S("Keyboard controls activated.")
+				or S("Mouse controls activated."))
 	end
 end
 
@@ -672,7 +675,7 @@ minetest.register_entity("deltaglider:hangglider", {
 })
 
 minetest.register_tool("deltaglider:glider", {
-	description = "Delta Glider",
+	description = S("Delta Glider"),
 	inventory_image = "deltaglider_glider.png",
 	on_use = on_use,
 	on_secondary_use = on_place,
