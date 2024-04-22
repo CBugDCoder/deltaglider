@@ -16,7 +16,7 @@ local vector_zero = vector.zero
 
 -- global table for exposed functions
 deltaglider = {
-	version = 20240419.161300,
+	version = 20240422.025720,
 	translator = minetest.get_translator('deltaglider'),
 }
 local S = deltaglider.translator
