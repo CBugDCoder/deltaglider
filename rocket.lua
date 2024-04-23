@@ -2,7 +2,7 @@ local S = deltaglider.translator
 local rocket_cooldown = deltaglider.rocket_cooldown
 
 minetest.register_craftitem("deltaglider:rocket", {
-	description = S("Rocket (Use while gliding to boost delta glider speed)"),
+	description = S("Rocket (Use while gliding to boost delta glider speed.)"),
 	inventory_image = "deltaglider_rocket.png",
 	on_use = function(itemstack, player)
 		local attach = player:get_attach()

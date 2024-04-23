@@ -84,7 +84,7 @@ local flak_warning = S("You have entered restricted airspace!@n"
 if enable_flak and not has_hangglider then
 	minetest.register_chatcommand("area_flak", {
 		params = S("<ID>"),
-		description = S("Toggle airspace restrictions for area <ID>"),
+		description = S("Toggle airspace restrictions for area <ID>."),
 		func = function(name, param)
 			local id = tonumber(param)
 			if not id then
@@ -100,7 +100,7 @@ if enable_flak and not has_hangglider then
 			-- Save false as nil to avoid inflating the DB.
 			areas.areas[id].flak = open or nil
 			areas:save()
-			return true, S("Area @1 airspace @2", id,
+			return true, S("Area @1 airspace is @2.", id,
 				open and S("closed") or S("opened"))
 		end
 	})
@@ -108,7 +108,7 @@ end
 
 minetest.register_chatcommand("deltagliderToggleHUD", {
 	params = "",
-	description = S("Toggle delta-glider HUD"),
+	description = S("Toggle delta-glider's HUD."),
 	func = function(name)
 		local meta = minetest.get_player_by_name(name):get_meta()
 		-- think: deltaglider.HUDdisabled

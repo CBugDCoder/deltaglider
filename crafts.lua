@@ -27,21 +27,21 @@ local dye_colors = {
 }
 
 local translated_colors = {
-	white      = S("white"),
-	grey       = S("grey"),
-	dark_grey  = S("dark_grey"),
-	black      = S("black"),
-	violet     = S("violet"),
-	blue       = S("blue"),
-	cyan       = S("cyan"),
-	dark_green = S("dark_green"),
-	green      = S("green"),
-	yellow     = S("yellow"),
-	brown      = S("brown"),
-	orange     = S("orange"),
-	red        = S("red"),
-	magenta    = S("magenta"),
-	pink       = S("pink"),
+	white      = S("White"),
+	grey       = S("Grey"),
+	dark_grey  = S("Dark_grey"),
+	black      = S("Black"),
+	violet     = S("Violet"),
+	blue       = S("Blue"),
+	cyan       = S("Cyan"),
+	dark_green = S("Dark_green"),
+	green      = S("Green"),
+	yellow     = S("Yellow"),
+	brown      = S("Brown"),
+	orange     = S("Orange"),
+	red        = S("Red"),
+	magenta    = S("Magenta"),
+	pink       = S("Pink"),
 }
 
 local function get_dye_color(name)
