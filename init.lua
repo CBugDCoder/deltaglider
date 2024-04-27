@@ -140,6 +140,8 @@ local function remove_physics_overrides(player)
 	end
 end
 
+-- NOTE: THIS METHOD IS EXPERIMENTAL, IT'S NAME AND SIGNATURE
+-- COULD CHANGE IN FUTURE VERSIONS.
 -- Allow other mods to register custom flight checks
 -- to disallow flying in certain areas or materials
 -- such as on the moon or without priv in certain area
