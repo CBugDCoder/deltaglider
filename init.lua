@@ -130,13 +130,15 @@ local function set_physics_overrides(player, overrides)
 end
 
 local function remove_physics_overrides(player)
-	for _, name in pairs({ "jump", "speed", "gravity" }) do
-		if has_player_monoids then
+	if has_player_monoids then
+		for _, name in pairs({ "jump", "speed", "gravity" }) do
 			player_monoids[name]:del_change(
 				player, "deltaglider:glider")
-		else
-			player:set_physics_override({ [name] = 1 })
 		end
+	else
+			player:set_physics_override({
+				jump = 1, speed = 1, gravity = 1
+			})
 	end
 end
 
