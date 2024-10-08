@@ -1,6 +1,6 @@
 # Delta Glider: A Realistic Delta Hang Glider Mod
 
-[![luacheck](https://github.com/CBugDCoder/deltaglider/workflows/luacheck/badge.svg)](https://github.com/CBugDecoder/deltaglider/actions)
+[![luacheck](https://github.com/mt-mods/deltaglider/workflows/luacheck/badge.svg)](https://github.com/mt-mods/deltaglider/actions)
 
 ![Screenshot](screenshot.png)
 
