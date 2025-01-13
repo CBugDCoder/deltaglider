@@ -24,6 +24,7 @@ local S = deltaglider.translator
 local has_areas = minetest.get_modpath("areas")
 local has_hangglider = minetest.get_modpath("hangglider")
 local has_player_monoids = minetest.get_modpath("player_monoids")
+local has_pova = minetest.get_modpath("pova")
 local has_priv_protector = minetest.get_modpath("priv_protector")
 	and minetest.global_exists("priv_protector")
 	and priv_protector.get_area_priv
@@ -124,6 +125,10 @@ local function set_physics_overrides(player, overrides)
 			player_monoids[name]:add_change(
 				player, value, "deltaglider:glider")
 		end
+	elseif has_pova then
+		pova.add_override(player:get_player_name(), "deltaglider:glider",
+				{jump = overrides.jump, gravity = overrides.gravity})
+		pova.do_override(player)
 	else
 		player:set_physics_override(overrides)
 	end
@@ -135,6 +140,9 @@ local function remove_physics_overrides(player)
 			player_monoids[name]:del_change(
 				player, "deltaglider:glider")
 		end
+	elseif has_pova then
+		pova.del_override(player:get_player_name(), "deltaglider:glider")
+		pova.do_override(player)
 	else
 			player:set_physics_override({
 				jump = 1, speed = 1, gravity = 1
