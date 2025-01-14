@@ -20,6 +20,7 @@ read_globals = {
 	},
 	"minetest", "core",
 	"player_monoids",
+	"pova",
 	"priv_protector",
 	unifieddyes = {
 		fields = {
