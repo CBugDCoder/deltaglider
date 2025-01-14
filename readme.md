@@ -1,3 +1,7 @@
+# Note: This repository is no longer being maintained.
+This mod is now maintaned at https://github.com/mt-mods/deltaglider
+Please submit PRs and issues there.
+
 # Delta Glider: A Realistic Delta Hang Glider Mod
 
 [![luacheck](https://github.com/mt-mods/deltaglider/workflows/luacheck/badge.svg)](https://github.com/mt-mods/deltaglider/actions)
